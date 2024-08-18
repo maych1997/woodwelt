@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "./static/css/main.f27c1fc5.css",
-    "main.js": "./static/js/main.78cadbc1.js",
-    "static/js/453.d7a476cf.chunk.js": "./static/js/453.d7a476cf.chunk.js",
-    "static/media/login-wallpaper.jpg": "./static/media/login-wallpaper.d5cc5ad7a3a88fe29ff3.jpg",
-    "static/media/woodwelteu-high-resolution-logo-transparent.png": "./static/media/woodwelteu-high-resolution-logo-transparent.76f17879e682c4da5114.png",
-    "static/media/mobile.svg": "./static/media/mobile.076f4de0c5fcbeec5e2a6d5e1713b478.svg",
-    "static/media/gmail.svg": "./static/media/gmail.cf6d56168e181c93dd78a00242e7e75e.svg",
-    "index.html": "./index.html",
-    "main.f27c1fc5.css.map": "./static/css/main.f27c1fc5.css.map",
-    "main.78cadbc1.js.map": "./static/js/main.78cadbc1.js.map",
-    "453.d7a476cf.chunk.js.map": "./static/js/453.d7a476cf.chunk.js.map"
+    "main.css": "/maych1997/woodwelt/tree/staging/src/static/css/main.f27c1fc5.css",
+    "main.js": "/maych1997/woodwelt/tree/staging/src/static/js/main.344f1c86.js",
+    "static/js/453.d7a476cf.chunk.js": "/maych1997/woodwelt/tree/staging/src/static/js/453.d7a476cf.chunk.js",
+    "static/media/login-wallpaper.jpg": "/maych1997/woodwelt/tree/staging/src/static/media/login-wallpaper.d5cc5ad7a3a88fe29ff3.jpg",
+    "static/media/woodwelteu-high-resolution-logo-transparent.png": "/maych1997/woodwelt/tree/staging/src/static/media/woodwelteu-high-resolution-logo-transparent.76f17879e682c4da5114.png",
+    "static/media/mobile.svg": "/maych1997/woodwelt/tree/staging/src/static/media/mobile.076f4de0c5fcbeec5e2a6d5e1713b478.svg",
+    "index.html": "/maych1997/woodwelt/tree/staging/src/index.html",
+    "static/media/gmail.svg": "/maych1997/woodwelt/tree/staging/src/static/media/gmail.cf6d56168e181c93dd78a00242e7e75e.svg",
+    "main.f27c1fc5.css.map": "/maych1997/woodwelt/tree/staging/src/static/css/main.f27c1fc5.css.map",
+    "main.344f1c86.js.map": "/maych1997/woodwelt/tree/staging/src/static/js/main.344f1c86.js.map",
+    "453.d7a476cf.chunk.js.map": "/maych1997/woodwelt/tree/staging/src/static/js/453.d7a476cf.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f27c1fc5.css",
-    "static/js/main.78cadbc1.js"
+    "static/js/main.344f1c86.js"
   ]
 }
