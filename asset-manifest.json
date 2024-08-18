@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/woodwelt/static/css/main.f27c1fc5.css",
-    "main.js": "/woodwelt/static/js/main.a8986411.js",
+    "main.js": "/woodwelt/static/js/main.07895210.js",
     "static/js/453.d7a476cf.chunk.js": "/woodwelt/static/js/453.d7a476cf.chunk.js",
     "static/media/login-wallpaper.jpg": "/woodwelt/static/media/login-wallpaper.d5cc5ad7a3a88fe29ff3.jpg",
     "static/media/woodwelteu-high-resolution-logo-transparent.png": "/woodwelt/static/media/woodwelteu-high-resolution-logo-transparent.76f17879e682c4da5114.png",
@@ -9,11 +9,11 @@
     "index.html": "/woodwelt/index.html",
     "static/media/gmail.svg": "/woodwelt/static/media/gmail.cf6d56168e181c93dd78a00242e7e75e.svg",
     "main.f27c1fc5.css.map": "/woodwelt/static/css/main.f27c1fc5.css.map",
-    "main.a8986411.js.map": "/woodwelt/static/js/main.a8986411.js.map",
+    "main.07895210.js.map": "/woodwelt/static/js/main.07895210.js.map",
     "453.d7a476cf.chunk.js.map": "/woodwelt/static/js/453.d7a476cf.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f27c1fc5.css",
-    "static/js/main.a8986411.js"
+    "static/js/main.07895210.js"
   ]
 }
