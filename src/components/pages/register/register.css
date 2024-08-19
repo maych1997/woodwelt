@@ -95,3 +95,17 @@ a{
     color: #1976d2;
     cursor: pointer;
 }
+.signUpSeperator{
+    text-wrap: nowrap;
+}
+.icon{
+    height: 25px;
+    width: 25px;
+    position: absolute;
+    padding: 10px;
+}
+.password-container{
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
+}
