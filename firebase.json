@@ -3,6 +3,12 @@
     {
       "target": "staging-woodwelt-eu",
       "public": "build",
+      "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -12,6 +18,12 @@
     {
       "target": "woodwelt-6d1f2",
       "public": "build",
+      "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
       "ignore": [
         "firebase.json",
         "**/.*",
