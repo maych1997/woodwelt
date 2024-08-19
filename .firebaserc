@@ -1,0 +1,19 @@
+{
+  "projects": {
+    "default": "woodwelt-6d1f2"
+  },
+  "targets": {
+    "woodwelt-6d1f2": {
+      "hosting": {
+        "staging-woodwelt-eu": [
+          "staging-woodwelt-eu"
+        ],
+        "woodwelt-6d1f2": [
+          "woodwelt-6d1f2"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}
