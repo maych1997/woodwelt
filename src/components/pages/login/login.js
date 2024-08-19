@@ -5,12 +5,15 @@ import Gmail from "../../../assets/svg/gmail.svg";
 import Mobile from "../../../assets/svg/mobile.svg";
 import LoginWallpaper from "../../../assets/images/login-wallpaper.jpg";
 import Header from "../../header/header";
+import Show from "../../../assets/icons/show.svg";
+import Hide from "../../../assets/icons/hide.svg";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate=useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -32,6 +35,9 @@ const Login = () => {
     if (validateForm()) {
       //Login Action
     }
+  };
+  const showHidePassword = () => {
+    setShowPassword(!showPassword);
   };
   return (
 
@@ -56,18 +62,28 @@ const Login = () => {
               setEmail(event.target.value);
             }}
           />
-          <TextField
-            className="text-input"
-            type="password"
-            id="outlined-basic"
-            size="small"
-            label="Password"
-            variant="outlined"
-            helperText={errors.password}
-            onChange={(event) => {
-              setPassword(event.target.value);
-            }}
-          />
+            <div className="password-container">
+              <TextField
+                className="text-input"
+                type={showPassword == true ? "text" : "password"}
+                id="outlined-basic"
+                size="small"
+                label="Password"
+                variant="outlined"
+                helperText={errors.password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                }}
+              />
+
+              <img
+                onClick={() => {
+                  showHidePassword();
+                }}
+                className="icon"
+                src={showPassword ? Hide : Show}
+              />
+            </div>
           <div className="action-container">
             <FormControlLabel
               control={
@@ -97,7 +113,7 @@ const Login = () => {
                 className="login-button"
                 variant="contained"
               >
-                Login
+                Sign In
               </Button>
               <div className="signup-container">
                 <p>Don't have an account?</p>
