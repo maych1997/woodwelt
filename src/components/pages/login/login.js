@@ -80,7 +80,7 @@ const Login = () => {
                 onClick={() => {
                   showHidePassword();
                 }}
-                className="icon"
+                className="eye-icon"
                 src={showPassword ? Hide : Show}
               />
             </div>

@@ -3,7 +3,7 @@ import logo from '../../../src/assets/logo/woodwelteu-high-resolution-logo-trans
 import './header.css'
 const Header=()=>{
     return(
-    <header className="header">
+    <header className="header-class">
         <div className="logo-container">
             <img src={logo} className="logo" alt="logo" />
        </div>
