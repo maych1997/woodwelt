@@ -89,6 +89,7 @@
 }
 .css-k4qjio-MuiFormHelperText-root{
     color: red !important;
+    margin-left: 0px !important;
 }
 a{
     text-decoration: none;
@@ -98,14 +99,16 @@ a{
 .signUpSeperator{
     text-wrap: nowrap;
 }
-.icon{
+.eye-icon{
     height: 25px;
     width: 25px;
     position: absolute;
     padding: 10px;
 }
 .password-container{
-    align-items: center;
     display: flex;
     justify-content: flex-end;
+}
+.fileName{
+    margin: 0px;
 }
