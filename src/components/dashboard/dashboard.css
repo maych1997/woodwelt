@@ -259,3 +259,12 @@ body {
     display: none;
   }
 }
+
+.profilePictureContainer{
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+.circularProgressHide{
+  color: #fff;
+}

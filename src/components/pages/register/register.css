@@ -55,6 +55,7 @@
     align-items: center;
     gap: 5px;
 }
+
 .hyphon {
     border: 1px solid;
     width: 135px;
@@ -111,4 +112,28 @@ a{
 }
 .fileName{
     margin: 0px;
+}
+
+.phoneInput .form-control {
+    padding: 8.5px 50px !important;
+    width: 100% !important;
+}
+.country-list {
+    width: fit-content !important;
+    margin: 0px !important;
+}
+.country-name{
+    text-wrap: nowrap;
+}
+.error{
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 0.75rem;
+    line-height: 1.66;
+    letter-spacing: 0.03333em;
+    text-align: left;
+    margin-top: 4px;
+    margin-right: 14px;
+    margin-bottom: 0;
+    color:red;
 }

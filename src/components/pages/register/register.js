@@ -1,6 +1,18 @@
-import React, { useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import "./register.css";
-import { TextField, Checkbox, FormControlLabel, Button, Modal, Box, CircularProgress } from "@mui/material";
+import {
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Modal,
+  Box,
+  CircularProgress,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 import Gmail from "../../../assets/svg/gmail.svg";
 import Mobile from "../../../assets/svg/mobile.svg";
 import Show from "../../../assets/icons/show.svg";
@@ -8,16 +20,35 @@ import Hide from "../../../assets/icons/hide.svg";
 import RegisterWallpaper from "../../../assets/images/e-commerce-3692440_1280.jpg";
 import Header from "../../header/header";
 import { useNavigate } from "react-router-dom";
-import { storage, database, auth } from "../../../backend/firebase/connection";
+import {
+  storage,
+  database,
+  auth,
+  provider,
+} from "../../../backend/firebase/connection";
 import {
   ref as storageRef,
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
-import { ref as dbRef, push } from "firebase/database";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  ref as dbRef,
+  get,
+  onValue,
+  ref,
+  set,
+  update,
+} from "firebase/database";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithPopup,
+} from "firebase/auth";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/material.css";
 
 const Register = () => {
+  const [countries, setCountries] = useState([]);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -34,11 +65,14 @@ const Register = () => {
   const [showCnfrmPassword, setShowCnfrmPassword] = useState(false);
   const [image, setImage] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [load,setLoad]=useState(false);
+  const [load, setLoad] = useState(false);
   const [url, setUrl] = useState("");
+  const [code, setCode] = useState("+1");
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [user, setUser] = useState("");
+  const [isNewUser, setNewUser] = useState(false);
   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex =
@@ -78,33 +112,67 @@ const Register = () => {
       !newErrors.cnfrmPass
     );
   };
+  const validateCompleteDetails = () => {
+    const newErrors = {
+      contact: contact ? "" : "Contact is Required",
+      address: address ? "" : "Address is Required",
+    };
+
+    setErrors(newErrors);
+
+    return !newErrors.contact && !newErrors.address;
+  };
 
   const registerWithEmail = async () => {
+    setLoad(true);
     if (validateForm()) {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        const user = userCredential.user;
+        // Registered successfully
 
-      // try {
-      //   const userCredential = (await createUserWithEmailAndPassword(auth, email, password));
-      //   const user=userCredential.user;
-      //   // Registered successfully
-      //   if(image==null){
-      //     setSuccess('User registered successfully!');
-      //     console.log('User Info:', userCredential.user);
-      //   }else{
-      //     handleUpload();
-      //     await updateProfile(user, {
-      //       displayName: firstName+' '+lastName,
-      //       photoURL: url!=null?url:'',
-      //       phoneNumber:contact!=null?contact:'',
-      //     });
-      //     console.log('User Info:', userCredential.user);
-      //   }
-      //   // You can also redirect or perform other actions here
-      // } catch (error) {
-      //   // Handle Errors here
-      //   setError(error.message);
-      //   console.error('Error registering user:', error);
-      // }
-      alert('Yet To Be Implemented');
+        const newRef = dbRef(database, "users/" + user.uid);
+        set(newRef, {
+          uid: user.uid,
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          contact: "+" + contact,
+          profilePicture: url,
+          address: address,
+        })
+          .then(() => {
+            console.log("Data pushed successfully!");
+            navigate("/admin/dashboard?location=dashboard");
+            setLoad(false);
+          })
+          .catch((error) => {
+            console.error("Error pushing data: ", error);
+            alert(error.message);
+            setLoad(false);
+          });
+        if (image == null || image == undefined) {
+        } else {
+          handleUpload(user);
+          setSuccess("User registered successfully!");
+          setLoad(false);
+          console.log("User Info:", userCredential.user);
+        }
+        // You can also redirect or perform other actions here
+      } catch (error) {
+        // Handle Errors here
+        console.log(error.code);
+        setError(error.message);
+        alert(error.message);
+        setLoad(false);
+        console.error("Error registering user:", error);
+      }
+    } else {
+      setLoad(false);
     }
   };
   const showHidePassword = () => {
@@ -113,9 +181,10 @@ const Register = () => {
   const showHideCnfrmPassword = () => {
     setShowCnfrmPassword(!showCnfrmPassword);
   };
-  const handleUpload = () => {
+  const handleUpload = (user) => {
+    console.log(user);
     if (image) {
-      const imageRef = storageRef(storage, `images/${image.name}`);
+      const imageRef = storageRef(storage, `profilepicture/${image.name}`);
       const uploadTask = uploadBytes(imageRef, image);
 
       uploadTask
@@ -124,181 +193,316 @@ const Register = () => {
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           );
           setProgress(progress);
-
           return getDownloadURL(imageRef);
         })
         .then((url) => {
           setUrl(url);
-          push(dbRef(database, "images"), { url: url });
+          update(dbRef(database, "users/" + user?.uid), {
+            profilePicture: url,
+          });
+          setUrl(null);
+          setImage(null);
         })
         .catch((error) => {
-          console.error(error);
+          alert(error.message);
         });
     }
   };
+  const signUpWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log(user);
 
+      // Reference to the user's data in the database
+      const userRef = dbRef(database, "users/" + user.uid);
+
+      // Check if the user data already exists
+      const snapshot = await get(userRef);
+
+      if (snapshot.exists()) {
+        // User exists
+        console.log("User is returning.");
+        setNewUser(false); // or setNewUser(false) to indicate existing user
+        navigate("/admin/dashboard?location=dashboard");
+      } else {
+        // User is new, set data
+        await set(userRef, {
+          uid: user.uid,
+          firstName: user.displayName.split(" ")[0],
+          lastName: user.displayName.split(" ")[1],
+          email: user.email,
+          contact: contact,
+          profilePicture: user.photoURL,
+          address: address,
+        });
+        console.log("New user data pushed successfully!");
+        setNewUser(true); // or setNewUser(true) to indicate new user
+      }
+
+      // Navigate after setting the user state
+
+      setLoad(false);
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      alert(error.message);
+      setLoad(false);
+    }
+  };
+
+  const completeUserDetails = () => {
+    if (user != null && validateCompleteDetails()) {
+      const newRef = dbRef(database, "users/" + user.uid);
+      set(newRef, {
+        uid: user.uid,
+        firstName: user.displayName.split(" ")[0],
+        lastName: user.displayName.split(" ")[1],
+        email: user.email,
+        contact: contact,
+        profilePicture: user.photoURL,
+        address: address,
+      })
+        .then(() => {
+          console.log("Data pushed successfully!");
+          navigate("/admin/dashboard?location=dashboard");
+          setLoad(false);
+        })
+        .catch((error) => {
+          console.error("Error pushing data: ", error);
+          alert(error.message);
+          setLoad(false);
+        });
+    }
+  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
   return (
     <>
       <Header></Header>
       <div className="container">
         <div className="subContainer1">
+          <p>{error}</p>
           <div className="headingContainer">
-            <h1>Register</h1>
-            <h4>Register to create your woodwelt.eu store</h4>
+            <h1>{isNewUser ? "Complete Profile" : "Register"}</h1>
+            <h4>
+              {isNewUser
+                ? "Complete the registeration details to proceed"
+                : "Register to create your woodwelt.eu store"}
+            </h4>
           </div>
-          <div className="form-container">
-            <TextField
-              className="text-input"
-              id="first-name"
-              size="small"
-              label="First Name"
-              variant="outlined"
-              type="text"
-              helperText={errors.firstName}
-              onChange={(event) => {
-                setFirstName(event.target.value);
-              }}
-            />
-            <TextField
-              className="text-input"
-              id="last-name"
-              size="small"
-              label="Last Name"
-              variant="outlined"
-              type="text"
-              helperText={errors.lastName}
-              onChange={(event) => {
-                setLastName(event.target.value);
-              }}
-            />
-            <TextField
-              className="text-input"
-              id="contact"
-              size="small"
-              label="Contact"
-              variant="outlined"
-              type="text"
-              helperText={errors.contact}
-              onChange={(event) => {
-                setContact(event.target.value);
-              }}
-            />
-            <TextField
-              className="text-input"
-              id="address"
-              size="small"
-              label="Address"
-              variant="outlined"
-              type="text"
-              helperText={errors.address}
-              onChange={(event) => {
-                setAddress(event.target.value);
-              }}
-            />
-            <TextField
-              className="text-input"
-              id="email"
-              size="small"
-              label="Email"
-              variant="outlined"
-              type="email"
-              helperText={errors.email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-              }}
-            />
-            <div className="password-container">
-              <TextField
-                className="text-input"
-                type={showPassword == true ? "text" : "password"}
-                id="outlined-basic"
-                size="small"
-                label="Password"
-                variant="outlined"
-                helperText={errors.password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                }}
-              />
-
-              <img
-                onClick={() => {
-                  showHidePassword();
-                }}
-                className="eye-icon"
-                src={showPassword ? Hide : Show}
-              />
-            </div>
-            <div className="password-container">
-              <TextField
-                className="text-input"
-                type={showCnfrmPassword == true ? "text" : "password"}
-                id="outlined-basic"
-                size="small"
-                label="Confirm Passsword"
-                variant="outlined"
-                helperText={errors.cnfrmPass}
-                onChange={(event) => {
-                  setCnfrmPass(event.target.value);
-                }}
-              />
-              <img
-                onClick={() => {
-                  showHideCnfrmPassword();
-                }}
-                className="eye-icon"
-                src={showCnfrmPassword ? Hide : Show}
-              />
-            </div>
-            {image!=null?<p className="fileName"><b>Attached:</b> {image.name}</p>:''}
-            <Button disabled={load} variant="contained" component="label">
-            {load?<CircularProgress size={25}/>:'Upload Profile Pictiure'}
-              <input
-                type="file"
-                hidden
-                onChange={(event) => {
-                  setImage(event.target.files[0]);
-                }}
-              />
-            </Button>
-            <div className="button-container">
-              <div className="login-container">
-                <Button
-                  disabled={load}
-                  onClick={() => {
-                    registerWithEmail();
+          {isNewUser ? (
+            <div className="form-container">
+              <div>
+                <PhoneInput
+                  containerClass="phoneInput"
+                  specialLabel="Contact"
+                  value={contact}
+                  onChange={(contact) => {
+                    setContact(contact);
                   }}
-                  className="login-button"
-                  variant="contained"
-                >
-                  {load?<CircularProgress size={25}/>:'Sign In'}
-                </Button>
-                <div className="signup-container">
-                  <p>Already Have an account?</p>
-                  <a
+                  inputStyle={{ width: "100%" }} // Adjust styles as needed
+                />
+                <p className="error">{errors.contact}</p>
+              </div>
+              <TextField
+                className="text-input"
+                id="address"
+                size="small"
+                label="Address"
+                variant="outlined"
+                type="text"
+                helperText={errors.address}
+                onChange={(event) => {
+                  setAddress(event.target.value);
+                }}
+              />
+              <div className="button-container">
+                <div className="login-container">
+                  <Button
+                    disabled={load}
                     onClick={() => {
-                      navigate("/");
+                      completeUserDetails();
                     }}
+                    className="login-button"
+                    variant="contained"
                   >
-                    Sign In
-                  </a>
+                    {load ? <CircularProgress size={25} /> : "Done"}
+                  </Button>
                 </div>
               </div>
-              <div className="or-container">
-                <div className="hyphon"></div>
-                <p className="signUpSeperator">Or Sign Up With</p>
-                <div className="hyphon"></div>
+            </div>
+          ) : (
+            <div className="form-container">
+              <TextField
+                className="text-input"
+                id="first-name"
+                size="small"
+                label="First Name"
+                variant="outlined"
+                type="text"
+                helperText={errors.firstName}
+                onChange={(event) => {
+                  setFirstName(event.target.value);
+                }}
+              />
+              <TextField
+                className="text-input"
+                id="last-name"
+                size="small"
+                label="Last Name"
+                variant="outlined"
+                type="text"
+                helperText={errors.lastName}
+                onChange={(event) => {
+                  setLastName(event.target.value);
+                }}
+              />
+              <div>
+                <PhoneInput
+                  containerClass="phoneInput"
+                  specialLabel="Contact"
+                  value={contact}
+                  onChange={(contact) => {
+                    setContact(contact);
+                  }}
+                  inputStyle={{ width: "100%" }} // Adjust styles as needed
+                />
+                <p className="error">{errors.contact}</p>
               </div>
-              <div className="social-button-container">
-                <Button className="social-button" variant="outlined">
-                  <img src={Gmail}></img>
-                </Button>
-                <Button className="social-button" variant="outlined">
-                  <img src={Mobile}></img>
-                </Button>
+              <TextField
+                className="text-input"
+                id="address"
+                size="small"
+                label="Address"
+                variant="outlined"
+                type="text"
+                helperText={errors.address}
+                onChange={(event) => {
+                  setAddress(event.target.value);
+                }}
+              />
+              <TextField
+                className="text-input"
+                id="email"
+                size="small"
+                label="Email"
+                variant="outlined"
+                type="email"
+                helperText={errors.email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                }}
+              />
+              <div className="password-container">
+                <TextField
+                  className="text-input"
+                  type={showPassword == true ? "text" : "password"}
+                  id="outlined-basic"
+                  size="small"
+                  label="Password"
+                  variant="outlined"
+                  helperText={errors.password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                  }}
+                />
+
+                <img
+                  onClick={() => {
+                    showHidePassword();
+                  }}
+                  className="eye-icon"
+                  src={showPassword ? Hide : Show}
+                />
+              </div>
+              <div className="password-container">
+                <TextField
+                  className="text-input"
+                  type={showCnfrmPassword == true ? "text" : "password"}
+                  id="outlined-basic"
+                  size="small"
+                  label="Confirm Passsword"
+                  variant="outlined"
+                  helperText={errors.cnfrmPass}
+                  onChange={(event) => {
+                    setCnfrmPass(event.target.value);
+                  }}
+                />
+                <img
+                  onClick={() => {
+                    showHideCnfrmPassword();
+                  }}
+                  className="eye-icon"
+                  src={showCnfrmPassword ? Hide : Show}
+                />
+              </div>
+              {image != null ? (
+                <p className="fileName">
+                  <b>Attached:</b> {image.name}
+                </p>
+              ) : (
+                ""
+              )}
+              <Button variant="contained" component="label">
+                Upload Profile Pictiure
+                <input
+                  type="file"
+                  hidden
+                  onChange={(event) => {
+                    setImage(event.target.files[0]);
+                  }}
+                />
+              </Button>
+              <div className="button-container">
+                <div className="login-container">
+                  <Button
+                    disabled={load}
+                    onClick={() => {
+                      registerWithEmail();
+                    }}
+                    className="login-button"
+                    variant="contained"
+                  >
+                    {load ? <CircularProgress size={25} /> : "Sign Up"}
+                  </Button>
+                  <div className="signup-container">
+                    <p>Already Have an account?</p>
+                    <a
+                      onClick={() => {
+                        navigate("/admin/login");
+                      }}
+                    >
+                      Sign In
+                    </a>
+                  </div>
+                </div>
+                <div className="or-container">
+                  <div className="hyphon"></div>
+                  <p className="signUpSeperator">Or Sign Up With</p>
+                  <div className="hyphon"></div>
+                </div>
+                <div className="social-button-container">
+                  <Button
+                    className="social-button"
+                    onClick={() => {
+                      signUpWithGoogle();
+                    }}
+                    variant="outlined"
+                  >
+                    <img src={Gmail}></img>
+                  </Button>
+                  <Button className="social-button" variant="outlined">
+                    <img src={Mobile}></img>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="subContainer2">
           <img className="login-image" src={RegisterWallpaper} />
