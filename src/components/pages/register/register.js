@@ -323,11 +323,8 @@ const Register = () => {
           }
         });
       
-        console.log(contact);
         const confirmation=signInWithPhoneNumber(auth,'+923474077976',recaptchaVerifier);
-        (await confirmation).confirm(code).then((result)=>{
-          console.log(result);  
-        });
+        setUser(confirmation);
       } catch (error) {
         console.error("Error setting up RecaptchaVerifier:", error);
       }
@@ -336,6 +333,9 @@ const Register = () => {
       setCodeSent(true);
     }
   };
+  const verifyCode=async()=>{
+    user.confirm(code);
+  }
   const ContactModal = () => {
     return (
       // <Modal
@@ -442,7 +442,9 @@ const Register = () => {
                   id="sign-in-button"
                   disabled={load}
                   onClick={() => {
-                    SendOTPCode();
+                    if(codeSent){verifyCode()}else{
+                      SendOTPCode();
+                    };
                   }}
                   className="login-button"
                   variant="contained"
