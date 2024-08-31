@@ -323,7 +323,7 @@ const Register = () => {
         });
       
         console.log(contact);
-        const confirmation=signInWithPhoneNumber(auth,'+923474077976',recaptchaVerifier);
+        const confirmation=signInWithPhoneNumber(auth,'+923314077976',recaptchaVerifier);
         console.log(confirmation);
       } catch (error) {
         console.error("Error setting up RecaptchaVerifier:", error);
