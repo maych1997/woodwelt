@@ -303,7 +303,7 @@ const Login = () => {
                     {load ? <CircularProgress size={25} /> : "Sign In"}
                   </Button>
                   <div className="signup-container">
-                    <p>Don't have an account?</p>
+                    <p className="already-text">Don't have an account?</p>
                     <a
                       onClick={() => {
                         navigate("/admin/register");

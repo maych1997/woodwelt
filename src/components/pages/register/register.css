@@ -101,8 +101,8 @@ a{
     text-wrap: nowrap;
 }
 .eye-icon{
-    height: 25px;
-    width: 25px;
+    height: 40px;
+    width: 40px;
     position: absolute;
     padding: 10px;
 }
@@ -136,4 +136,25 @@ a{
     margin-right: 14px;
     margin-bottom: 0;
     color:red;
+}
+.modal-div {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    background-color: #fff;
+}
+.modal-titleP{
+    color: #000;
+}
+.already-text{
+    margin: 0px;
+}
+.modal-container{
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: fit-content;
+    z-index: 1;
+    background-color: #fff;
 }

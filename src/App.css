@@ -1,0 +1,5 @@
+.login-container{
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
+}
