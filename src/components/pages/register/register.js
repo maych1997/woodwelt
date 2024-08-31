@@ -131,11 +131,12 @@ const Register = () => {
   const validationForOTP = () => {
     const newErrors = {
       contactOTP: contactOTP ? "" : "Contact is Required",
+      code:code?"":"OTP is Required."
     };
 
     setErrors(newErrors);
 
-    return !newErrors.contactOTP;
+    return !newErrors.contactOTP && !newErrors.code;
   };
 
   const registerWithEmail = async () => {
@@ -324,7 +325,9 @@ const Register = () => {
       
         console.log(contact);
         const confirmation=signInWithPhoneNumber(auth,'+923474077976',recaptchaVerifier);
-        console.log(confirmation);
+        (await confirmation).confirm(code).then((result)=>{
+          console.log(result);  
+        });
       } catch (error) {
         console.error("Error setting up RecaptchaVerifier:", error);
       }
@@ -409,17 +412,28 @@ const Register = () => {
                 controlId="exampleForm.ControlInput1"
               >
                 <Form.Group controlId="phoneInput">
-                  <Form.Label>Contact</Form.Label>
+                  {codeSent==true?<TextField
+                  className="text-input"
+                  id="otp"
+                  size="small"
+                  label="OTP"
+                  variant="outlined"
+                  type="text"
+                  helperText={errors.address}
+                  onChange={(event) => {
+                    setCode(event.target.value);
+                  }}
+                />:
                   <PhoneInput
-                    country={"us"} // Specify default country if needed
-                    autoFocus
-                    containerClass="phoneInput"
-                    specialLabel="Contact"
-                    onChange={(contactOTP) => {
-                      setContactOtp(contactOTP);
-                    }}
-                    inputStyle={{ width: "100%" }} // Adjust styles as needed
-                  />
+                  country={"us"} // Specify default country if needed
+                  autoFocus
+                  containerClass="phoneInput"
+                  specialLabel="Contact"
+                  onChange={(contactOTP) => {
+                    setContactOtp(contactOTP);
+                  }}
+                  inputStyle={{ width: "100%" }} // Adjust styles as needed
+                />}
                 </Form.Group>
                 <p className="error">{errors.contactOTP}</p>
 
