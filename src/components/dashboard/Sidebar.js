@@ -77,7 +77,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           <div className="profilePictureContainer">
             <img
               style={{ opacity: data?.profilePicture != null ? 1 : 0.5 }}
-              src={data?.profilePicture}
+              src={data?.profilePicture!=null?data?.profilePicture:'src/asset/images/user-place-holder.png'}
             ></img>
             <div
               style={{
