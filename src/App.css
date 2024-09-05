@@ -3,3 +3,6 @@
     display: flex;
     flex-direction: column;
 }
+.subContainer1{
+    gap: 10px;
+}

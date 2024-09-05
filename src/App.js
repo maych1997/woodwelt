@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ForgotPassword from "./components/pages/forgotPassword/forgotPassword";
 import Register from "./components/pages/register/register";
 import Dashboard from "./components/dashboard/Dashboard";
-import Products from '../src/components/Admin/Products/Products'
+import PersonalDetails from "./components/pages/personalDetails/personalDetails";
 
 function App() {
   return (
@@ -16,6 +16,7 @@ function App() {
           <Route path="/admin/forgot-password" element={<ForgotPassword />}></Route>
           <Route path="/admin/register" element={<Register />}></Route>
           <Route path="/admin/dashboard" element={<Dashboard/>}></Route>
+          <Route path="/admin/personalDetails" element={<PersonalDetails/>}></Route>
         </Routes>
       </BrowserRouter>
     </>

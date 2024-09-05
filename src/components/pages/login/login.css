@@ -96,3 +96,8 @@ a{
     color: #1976d2;
     cursor: pointer;
 }
+.login-action-container{margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}

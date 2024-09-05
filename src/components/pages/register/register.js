@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import "./register.css";
 import {
   TextField,
@@ -49,9 +49,10 @@ import {
 } from "firebase/auth";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import Modal from "@mui/material/Modal";
+// import Modal from "@mui/material/Modal";
 import { Form } from "react-bootstrap";
 import firebase from "firebase/compat/app";
+import { Modal } from "react-bootstrap";
 
 const Register = () => {
   const [countries, setCountries] = useState([]);
@@ -128,10 +129,11 @@ const Register = () => {
 
     return !newErrors.contact && !newErrors.address;
   };
+
   const validationForOTP = () => {
     const newErrors = {
       contactOTP: contactOTP ? "" : "Contact is Required",
-      code:code?"":"OTP is Required."
+      code: code ? "" : "OTP is Required.",
     };
 
     setErrors(newErrors);
@@ -298,7 +300,7 @@ const Register = () => {
     return () => unsubscribe();
   }, []);
   const [show, setShow] = useState(false);
-
+  const [showDetailsInfo, setDetailsInfo] = useState(false);
   const handleClose = () => {
     setShow(false);
   };
@@ -307,102 +309,71 @@ const Register = () => {
   };
   const [codeSent, setCodeSent] = useState(false);
   const [contactOTP, setContactOtp] = useState(null);
+  const [confirmation, setConfirmation] = useState(null);
   const SendOTPCode = async () => {
-    console.log(contactOTP);
     if (validationForOTP()) {
       try {
-        const recaptchaVerifier = new RecaptchaVerifier(auth,'recaptcha-container', {
-          'size': 'invisible',  // or 'normal'
-          'callback': (response) => {
-            // Success callback
-            console.log('Recaptcha verified');
-          },
-          'expired-callback': () => {
-            // Expired callback
-            console.log('Recaptcha expired');
+        const recaptchaVerifier = new RecaptchaVerifier(
+          auth,
+          "recaptcha-container",
+          {
+            size: "invisible", // or 'normal'
+            callback: (response) => {
+              // Success callback
+              console.log("Recaptcha verified");
+            },
+            "expired-callback": () => {
+              // Expired callback
+              console.log("Recaptcha expired");
+            },
           }
-        });
-      
-        const confirmation=signInWithPhoneNumber(auth,'+923474077976',recaptchaVerifier);
-        setUser(confirmation);
+        );
+
+        auth.settings.appVerificationDisabledForTesting = true;
+        signInWithPhoneNumber(auth, `+${contactOTP}`, recaptchaVerifier)
+          .then((confirmationResult) => {
+            window.confirmationResult = confirmationResult;
+          })
+          .catch((error) => {
+            alert(error);
+          });
       } catch (error) {
-        console.error("Error setting up RecaptchaVerifier:", error);
+        alert(error);
       }
       // const confirmation = signInWithPhoneNumber(auth, contactOTP, recaptcha);
       // console.log(confirmation);
       setCodeSent(true);
     }
   };
-  const verifyCode=async()=>{
-    user.confirm(code);
-  }
-  const ContactModal = () => {
-    return (
-      // <Modal
-      //   centered
-      //   show={show}
-      //   onHide={() => {
-      //     handleClose();
-      //   }}
-      // >
-      //   <Modal.Header closeButton>
-      //     <Modal.Title>Sign Up With Contact</Modal.Title>
-      //   </Modal.Header>
-      //   <Modal.Body>
-      //     <div className="modal-div">
-      //       <Form>
-      //         <Form.Group
-      //           className="mb-3"
-      //           controlId="exampleForm.ControlInput1"
-      //         >
-      //           <Form.Group className="mb-3" controlId="phoneInput">
-      //             <Form.Label>Contact</Form.Label>
-      //             <PhoneInput
-      //               country={"us"} // Specify default country if needed
-      //               autoFocus
-      //               containerClass="phoneInput"
-      //               specialLabel="Contact"
-      //               onChange={(contactOTP) => {
-      //                 setContactOtp(contactOTP);
-      //               }}
-      //               inputStyle={{ width: "100%" }} // Adjust styles as needed
-      //             />
-      //           </Form.Group>
-      //           <p className="error">{errors.contactOTP}</p>
-      //           <Button
-      //             disabled={load}
-      //             onClick={() => {
-      //               SendOTPCode();
-      //             }}
-      //             className="login-button"
-      //             variant="contained"
-      //           >
-      //             {codeSent ? "Verify OTP" : "Send OTP Code"}
-      //           </Button>
-      //         </Form.Group>
-      //       </Form>
-      //     </div>
-      //   </Modal.Body>
-      // </Modal>
-      <div className="parent">
-        <div
-          open={show}
-          onClose={() => {
-            handleClose();
-          }}
-          style={{ display: show ? "flex" : "none" }}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-          className="modal-container"
-        ></div>
-      </div>
-    );
+  const verifyCode = async () => {
+    const userRef = dbRef(database, "users/" + user.uid);
+
+    // Check if the user data already exists
+    const snapshot = await get(userRef);
+    try {
+      const data = await window.confirmationResult.confirm(code);
+      console.log(data);
+      if (snapshot.exists()) {
+        setDetailsInfo(true);
+        setCodeSent(false);
+        setShow(false);
+        navigate("/admin/dashboard?location=dashboard");
+      } else {
+        if (data != undefined) {
+          setDetailsInfo(true);
+          setCodeSent(false);
+          setShow(false);
+          navigate("/admin/personalDetails");
+        }
+      }
+    } catch (error) {
+      alert(error);
+    }
   };
 
   return (
     <>
       <Header></Header>
-      {/* <ContactModal></ContactModal> */}
       <div className="container">
         {show ? (
           <div className="modal-div">
@@ -412,44 +383,51 @@ const Register = () => {
                 controlId="exampleForm.ControlInput1"
               >
                 <Form.Group controlId="phoneInput">
-                  {codeSent==true?<TextField
-                  className="text-input"
-                  id="otp"
-                  size="small"
-                  label="OTP"
-                  variant="outlined"
-                  type="text"
-                  helperText={errors.address}
-                  onChange={(event) => {
-                    setCode(event.target.value);
-                  }}
-                />:
-                  <PhoneInput
-                  country={"us"} // Specify default country if needed
-                  autoFocus
-                  containerClass="phoneInput"
-                  specialLabel="Contact"
-                  onChange={(contactOTP) => {
-                    setContactOtp(contactOTP);
-                  }}
-                  inputStyle={{ width: "100%" }} // Adjust styles as needed
-                />}
+                  {codeSent == true ? (
+                    <TextField
+                      className="text-input"
+                      id="otp"
+                      size="small"
+                      label="OTP"
+                      variant="outlined"
+                      type="text"
+                      helperText={errors.address}
+                      onChange={(event) => {
+                        setCode(event.target.value);
+                      }}
+                    />
+                  ) : (
+                    <PhoneInput
+                      country={"us"} // Specify default country if needed
+                      autoFocus
+                      containerClass="phoneInput"
+                      specialLabel="Contact"
+                      onChange={(contactOTP) => {
+                        setContactOtp(contactOTP);
+                      }}
+                      inputStyle={{ width: "100%" }} // Adjust styles as needed
+                    />
+                  )}
                 </Form.Group>
-                <p className="error">{errors.contactOTP}</p>
+                <p className="error">
+                  {codeSent ? errors.code : errors.contactOTP}
+                </p>
 
                 <div id="recaptcha-container"></div>
                 <Button
                   id="sign-in-button"
                   disabled={load}
                   onClick={() => {
-                    if(codeSent){verifyCode()}else{
+                    if (codeSent) {
+                      verifyCode();
+                    } else {
                       SendOTPCode();
-                    };
+                    }
                   }}
                   className="login-button"
                   variant="contained"
                 >
-                  {codeSent ? "Verify OTP" : "Send OTP Code"}
+                  {codeSent ? "Verify OTP Code" : "Send OTP Code"}
                 </Button>
               </Form.Group>
             </Form>
@@ -457,7 +435,9 @@ const Register = () => {
               <p className="already-text">Go Back to</p>
               <a
                 onClick={() => {
-                  setShow(!show);
+                  setCodeSent(false);
+                  setDetailsInfo(false);
+                  setShow(false);
                 }}
               >
                 Register

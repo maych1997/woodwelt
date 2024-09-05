@@ -13,11 +13,13 @@ import LoginWallpaper from "../../../assets/images/login-wallpaper.jpg";
 import Header from "../../header/header";
 import Show from "../../../assets/icons/show.svg";
 import Hide from "../../../assets/icons/hide.svg";
-import { useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import { auth, database, provider } from "../../../backend/firebase/connection";
 import {
   onAuthStateChanged,
+  RecaptchaVerifier,
   signInWithEmailAndPassword,
+  signInWithPhoneNumber,
   signInWithPopup,
 } from "firebase/auth";
 import {
@@ -115,9 +117,11 @@ const Login = () => {
 
       if (snapshot.exists()) {
         // User exists
-        console.log("User is returning.");
-        setNewUser(false); // or setNewUser(false) to indicate existing user
-        navigate("/admin/dashboard?location=dashboard");
+        if (user != null) {
+          console.log("User is returning.");
+          setNewUser(false); // or setNewUser(false) to indicate existing user
+          navigate("/admin/dashboard?location=dashboard");
+        }
       } else {
         // User is new, set data
         await set(userRef, {
@@ -142,6 +146,12 @@ const Login = () => {
       setLoad(false);
     }
   };
+  const [code, setCode] = useState("+1");
+  const [codeSent, setCodeSent] = useState(false);
+  const [contactOTP, setContactOtp] = useState(null);
+  const [confirmation, setConfirmation] = useState(null);
+  const [show, setShow] = useState(false);
+  const [showDetailsInfo, setDetailsInfo] = useState(false);
   const completeUserDetails = () => {
     if (user != null && validateCompleteDetails()) {
       const newRef = dbRef(database, "users/" + user.uid);
@@ -166,6 +176,78 @@ const Login = () => {
         });
     }
   };
+  const validationForOTP = () => {
+    const newErrors = {
+      contactOTP: contactOTP ? "" : "Contact is Required",
+      code: code ? "" : "OTP is Required.",
+    };
+
+    setErrors(newErrors);
+
+    return !newErrors.contactOTP && !newErrors.code;
+  };
+
+  const SendOTPCode = async () => {
+    if (validationForOTP()) {
+      try {
+        const recaptchaVerifier = new RecaptchaVerifier(
+          auth,
+          "recaptcha-container",
+          {
+            size: "invisible", // or 'normal'
+            callback: (response) => {
+              // Success callback
+              console.log("Recaptcha verified");
+            },
+            "expired-callback": () => {
+              // Expired callback
+              console.log("Recaptcha expired");
+            },
+          }
+        );
+
+        auth.settings.appVerificationDisabledForTesting = true;
+        signInWithPhoneNumber(auth, `+${contactOTP}`, recaptchaVerifier)
+          .then((confirmationResult) => {
+            window.confirmationResult = confirmationResult;
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      } catch (error) {
+        alert(error);
+      }
+      // const confirmation = signInWithPhoneNumber(auth, contactOTP, recaptcha);
+      // console.log(confirmation);
+      setCodeSent(true);
+    }
+  };
+  const verifyCode = async () => {
+    const userRef = dbRef(database, "users/" + user?.uid);
+
+    // Check if the user data already exists
+    const snapshot = await get(userRef);
+    try {
+      const data = await window.confirmationResult.confirm(code);
+      console.log(data);
+      if (snapshot.exists()) {
+        setDetailsInfo(true);
+        setCodeSent(false);
+        setShow(false);
+        navigate("/admin/dashboard?location=dashboard");
+      } else {
+        if (data != undefined) {
+          setDetailsInfo(true);
+          setCodeSent(false);
+          setShow(false);
+          navigate("/admin/personalDetails");
+        }
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -173,169 +255,235 @@ const Login = () => {
 
     return () => unsubscribe();
   }, []);
+  const handleShow = () => {
+    setShow(true);
+  };
   return (
     <>
       <Header></Header>
       <div className="container">
-        <div className="subContainer1">
-          <div className="headingContainer">
-            <h1>{isNewUser ? "Complete Profile" : "Login"}</h1>
-            <h4>
-              {isNewUser
-                ? "Complete the registeration details to proceed"
-                : "Login to access your woodwelt.eu admin dashboard"}
-            </h4>
-          </div>
-          {isNewUser ? (
-            <div className="form-container">
-              <div>
-                <PhoneInput
-                  containerClass="phoneInput"
-                  specialLabel="Contact"
-                  value={contact}
-                  onChange={(contact) => {
-                    setContact(contact);
-                  }}
-                  inputStyle={{ width: "100%" }} // Adjust styles as needed
-                />
-                <p className="error">{errors.contact}</p>
-              </div>
-              <TextField
-                className="text-input"
-                id="address"
-                size="small"
-                label="Address"
-                variant="outlined"
-                type="text"
-                helperText={errors.address}
-                onChange={(event) => {
-                  setAddress(event.target.value);
-                }}
-              />
-              <div className="button-container">
-                <div className="login-container">
-                  <Button
-                    disabled={load}
-                    onClick={() => {
-                      completeUserDetails();
-                    }}
-                    className="login-button"
-                    variant="contained"
-                  >
-                    {load ? <CircularProgress size={25} /> : "Done"}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="form-container">
-              <TextField
-                className="text-input"
-                id="email"
-                size="small"
-                label="Email"
-                variant="outlined"
-                type="email"
-                helperText={errors.email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                }}
-              />
-              <div className="password-container">
-                <TextField
-                  className="text-input"
-                  type={showPassword == true ? "text" : "password"}
-                  id="outlined-basic"
-                  size="small"
-                  label="Password"
-                  variant="outlined"
-                  helperText={errors.password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                  }}
-                />
-
-                <img
-                  onClick={() => {
-                    showHidePassword();
-                  }}
-                  className="eye-icon"
-                  src={showPassword ? Hide : Show}
-                />
-              </div>
-              <div className="action-container">
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={checked}
-                      onClick={() => {
-                        setChecked(!checked);
-                      }}
-                      sx={{
-                        color: "#BFC9CA",
-                        "&.Mui-checked": {
-                          color: "#1976d2",
-                        },
+        {show ? (
+          <div className="modal-div">
+                  {codeSent == true ? (
+                    <TextField
+                      className="text-input"
+                      id="otp"
+                      size="small"
+                      label="OTP"
+                      variant="outlined"
+                      type="text"
+                      helperText={errors.address}
+                      onChange={(event) => {
+                        setCode(event.target.value);
                       }}
                     />
-                  }
-                  label={"Remember Me"}
-                />
-                <a
-                  onClick={() => {
-                    navigate("/forgot-password");
-                  }}
-                  className="forget-password"
-                >
-                  Forgot Password
-                </a>
-              </div>
-              <div className="button-container">
-                <div className="login-container">
-                  <Button
-                    disabled={load}
-                    onClick={() => {
-                      Login();
-                    }}
-                    className="login-button"
-                    variant="contained"
-                  >
-                    {load ? <CircularProgress size={25} /> : "Sign In"}
-                  </Button>
-                  <div className="signup-container">
-                    <p className="already-text">Don't have an account?</p>
-                    <a
-                      onClick={() => {
-                        navigate("/admin/register");
+                  ) : (
+                    <PhoneInput
+                      country={"us"} // Specify default country if needed
+                      autoFocus
+                      containerClass="phoneInput"
+                      specialLabel="Contact"
+                      onChange={(contactOTP) => {
+                        setContactOtp(contactOTP);
                       }}
+                      inputStyle={{ width: "100%" }} // Adjust styles as needed
+                    />
+                  )}
+                <p className="error">
+                  {codeSent ? errors.code : errors.contactOTP}
+                </p>
+
+                <div id="recaptcha-container"></div>
+                <Button
+                  id="sign-in-button"
+                  disabled={load}
+                  onClick={() => {
+                    if (codeSent) {
+                      verifyCode();
+                    } else {
+                      SendOTPCode();
+                    }
+                  }}
+                  className="login-button"
+                  variant="contained"
+                >
+                  {codeSent ? "Verify OTP Code" : "Send OTP Code"}
+                </Button>
+           
+            <div className="login-action-container">
+              <p className="already-text">Go Back to </p>
+              <a
+                onClick={() => {
+                  setCodeSent(false);
+                  setDetailsInfo(false);
+                  setShow(false);
+                }}
+              >
+                Login
+              </a>
+            </div>
+          </div>
+        ) : (
+          <div className="subContainer1">
+            <div className="headingContainer">
+              <h1>{isNewUser ? "Complete Profile" : "Login"}</h1>
+              <h4>
+                {isNewUser
+                  ? "Complete the registeration details to proceed"
+                  : "Login to access your woodwelt.eu admin dashboard"}
+              </h4>
+            </div>
+            {isNewUser ? (
+              <div className="form-container">
+                <div>
+                  <PhoneInput
+                    containerClass="phoneInput"
+                    specialLabel="Contact"
+                    value={contact}
+                    onChange={(contact) => {
+                      setContact(contact);
+                    }}
+                    inputStyle={{ width: "100%" }} // Adjust styles as needed
+                  />
+                  <p className="error">{errors.contact}</p>
+                </div>
+                <TextField
+                  className="text-input"
+                  id="address"
+                  size="small"
+                  label="Address"
+                  variant="outlined"
+                  type="text"
+                  helperText={errors.address}
+                  onChange={(event) => {
+                    setAddress(event.target.value);
+                  }}
+                />
+                <div className="button-container">
+                  <div className="login-container">
+                    <Button
+                      disabled={load}
+                      onClick={() => {
+                        completeUserDetails();
+                      }}
+                      className="login-button"
+                      variant="contained"
                     >
-                      Sign Up
-                    </a>
+                      {load ? <CircularProgress size={25} /> : "Done"}
+                    </Button>
                   </div>
                 </div>
-                <div className="or-container">
-                  <div className="hyphon"></div>
-                  <p>Or Login With</p>
-                  <div className="hyphon"></div>
-                </div>
-                <div className="social-button-container">
-                  <Button
-                    className="social-button"
-                    onClick={() => {
-                      signInWithGoogle();
-                    }}
+              </div>
+            ) : (
+              <div className="form-container">
+                <TextField
+                  className="text-input"
+                  id="email"
+                  size="small"
+                  label="Email"
+                  variant="outlined"
+                  type="email"
+                  helperText={errors.email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                  }}
+                />
+                <div className="password-container">
+                  <TextField
+                    className="text-input"
+                    type={showPassword == true ? "text" : "password"}
+                    id="outlined-basic"
+                    size="small"
+                    label="Password"
                     variant="outlined"
+                    helperText={errors.password}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                    }}
+                  />
+
+                  <img
+                    onClick={() => {
+                      showHidePassword();
+                    }}
+                    className="eye-icon"
+                    src={showPassword ? Hide : Show}
+                  />
+                </div>
+                <div className="action-container">
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={checked}
+                        onClick={() => {
+                          setChecked(!checked);
+                        }}
+                        sx={{
+                          color: "#BFC9CA",
+                          "&.Mui-checked": {
+                            color: "#1976d2",
+                          },
+                        }}
+                      />
+                    }
+                    label={"Remember Me"}
+                  />
+                  <a
+                    onClick={() => {
+                      navigate("/forgot-password");
+                    }}
+                    className="forget-password"
                   >
-                    <img src={Gmail}></img>
-                  </Button>
-                  <Button className="social-button" variant="outlined">
-                    <img src={Mobile}></img>
-                  </Button>
+                    Forgot Password
+                  </a>
+                </div>
+                <div className="button-container">
+                  <div className="login-container">
+                    <Button
+                      disabled={load}
+                      onClick={() => {
+                        Login();
+                      }}
+                      className="login-button"
+                      variant="contained"
+                    >
+                      {load ? <CircularProgress size={25} /> : "Sign In"}
+                    </Button>
+                    <div className="signup-container">
+                      <p className="already-text">Don't have an account?</p>
+                      <a
+                        onClick={() => {
+                          navigate("/admin/register");
+                        }}
+                      >
+                        Sign Up
+                      </a>
+                    </div>
+                  </div>
+                  <div className="or-container">
+                    <div className="hyphon"></div>
+                    <p>Or Login With</p>
+                    <div className="hyphon"></div>
+                  </div>
+                  <div className="social-button-container">
+                    <Button
+                      className="social-button"
+                      onClick={() => {
+                        signInWithGoogle();
+                      }}
+                      variant="outlined"
+                    >
+                      <img src={Gmail}></img>
+                    </Button>
+                    <Button onClick={ handleShow()} className="social-button" variant="outlined">
+                      <img src={Mobile}></img>
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
         <div className="subContainer2">
           <img className="login-image" src={LoginWallpaper} />
         </div>

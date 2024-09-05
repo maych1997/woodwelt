@@ -158,3 +158,13 @@ a{
     z-index: 1;
     background-color: #fff;
 }
+.modal-body{
+    justify-content: center;
+    display: flex;
+}
+.user-modal-div{
+    width: 80%;
+}
+.modal-header{
+    justify-content: center;
+}
