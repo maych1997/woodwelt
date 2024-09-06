@@ -207,8 +207,6 @@ const Login = () => {
             },
           }
         );
-
-        auth.settings.appVerificationDisabledForTesting = true;
         signInWithPhoneNumber(auth, `+${contactOTP}`, recaptchaVerifier)
           .then((confirmationResult) => {
             window.confirmationResult = confirmationResult;
