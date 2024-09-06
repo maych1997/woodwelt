@@ -47,6 +47,13 @@ const Login = () => {
   const [user, setUser] = useState(null);
   const [contact, setContact] = useState("");
   const [address, setAddress] = useState("");
+  const [code, setCode] = useState("+1");
+  const [codeSent, setCodeSent] = useState(false);
+  const [contactOTP, setContactOtp] = useState(null);
+  const [confirmation, setConfirmation] = useState(null);
+  const [show, setShow] = useState(false);
+  const [showDetailsInfo, setDetailsInfo] = useState(false);
+
   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex =
@@ -146,12 +153,7 @@ const Login = () => {
       setLoad(false);
     }
   };
-  const [code, setCode] = useState("+1");
-  const [codeSent, setCodeSent] = useState(false);
-  const [contactOTP, setContactOtp] = useState(null);
-  const [confirmation, setConfirmation] = useState(null);
-  const [show, setShow] = useState(false);
-  const [showDetailsInfo, setDetailsInfo] = useState(false);
+
   const completeUserDetails = () => {
     if (user != null && validateCompleteDetails()) {
       const newRef = dbRef(database, "users/" + user.uid);
@@ -258,6 +260,9 @@ const Login = () => {
   const handleShow = () => {
     setShow(true);
   };
+  const handleClose = () => {
+    setShow(false);
+  };
   return (
     <>
       <Header></Header>
@@ -316,7 +321,8 @@ const Login = () => {
                 onClick={() => {
                   setCodeSent(false);
                   setDetailsInfo(false);
-                  setShow(false);
+                  handleClose();
+                  console.log(show)
                 }}
               >
                 Login
@@ -475,7 +481,7 @@ const Login = () => {
                     >
                       <img src={Gmail}></img>
                     </Button>
-                    <Button onClick={ handleShow()} className="social-button" variant="outlined">
+                    <Button onClick={()=>{handleShow()}} className="social-button" variant="outlined">
                       <img src={Mobile}></img>
                     </Button>
                   </div>

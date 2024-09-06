@@ -10,7 +10,7 @@ import {
   BsFillGearFill,
 } from "react-icons/bs";
 import "./dashboard.css";
-import logo from "../../assets/images/login-wallpaper.jpg";
+import placeHolder from "../../assets/images/user-place-holder.jpg";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, database } from "../../backend/firebase/connection";
@@ -49,6 +49,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
       unsubscribeAuthState();
     };
   }, [user]);
+  console.log(data)
   return (
     <aside
       id="sidebar"
@@ -77,7 +78,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           <div className="profilePictureContainer">
             <img
               style={{ opacity: data?.profilePicture != null ? 1 : 0.5 }}
-              src={data?.profilePicture!=null?data?.profilePicture:'src/asset/images/user-place-holder.png'}
+              src={data?.profilePicture!='' || data?.profilePicture!="" || data.profilePicture.length!=0?data?.profilePicture:placeHolder}
             ></img>
             <div
               style={{

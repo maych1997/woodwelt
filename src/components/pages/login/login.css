@@ -101,3 +101,7 @@ a{
     justify-content: center;
     gap: 5px;
 }
+.or-container p{
+    padding: 0px;
+    margin: 0px;
+}

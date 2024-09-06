@@ -250,7 +250,7 @@ const Register = () => {
           firstName: user.displayName.split(" ")[0],
           lastName: user.displayName.split(" ")[1],
           email: user.email,
-          contact: contact,
+          contact:"+" +contact,
           profilePicture: user.photoURL,
           address: address,
         });
@@ -276,7 +276,7 @@ const Register = () => {
         firstName: user.displayName.split(" ")[0],
         lastName: user.displayName.split(" ")[1],
         email: user.email,
-        contact: contact,
+        contact: "+"+contact,
         profilePicture: user.photoURL,
         address: address,
       })
@@ -346,7 +346,7 @@ const Register = () => {
     }
   };
   const verifyCode = async () => {
-    const userRef = dbRef(database, "users/" + user.uid);
+    const userRef = dbRef(database, "users/" + user?.uid);
 
     // Check if the user data already exists
     const snapshot = await get(userRef);

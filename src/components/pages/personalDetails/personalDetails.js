@@ -114,6 +114,8 @@ const PersonalDetails = () => {
               // navigate("/admin/dashboard?location=dashboard");
               // setLoad(false);
               if (image == null || image == undefined) {
+                navigate("/admin/dashboard?location=dashboard");
+                setLoad(false);
               } else {
                 handleUpload(user);
                 navigate("/admin/dashboard?location=dashboard");
