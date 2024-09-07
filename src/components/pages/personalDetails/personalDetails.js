@@ -97,11 +97,11 @@ const PersonalDetails = () => {
 
   const phoneSignIn = async () => {
       if (validateFormForPhoneSignIn()) {
-        const newRef = dbRef(database, "users/" + user.uid);
+        const newRef = dbRef(database, "users/" + user?.uid);
         try {
        
           set(newRef, {
-            uid: user.uid,
+            uid: user?.uid,
             firstName: firstName,
             lastName: lastName,
             email: email,

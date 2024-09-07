@@ -35,7 +35,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
     const unsubscribeAuthState = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
-    const nodeRef = ref(database, "users/" + user.uid);
+    const nodeRef = ref(database, "users/" + user?.uid);
 
     const unsubscribeData = onValue(nodeRef, (snapshot) => {
       const data = snapshot.val();
@@ -128,14 +128,14 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
             {data?.email}
           </p>
           <p style={{ display: data?.contact == null ? "none" : "flex" }}>
-            + {data?.contact}
+             {data?.contact}
           </p>
         </div>
       </div>
       <ul className="sidebar-list">
         <li
           onClick={() => {
-            navigate("/dashboard?location=dashboard");
+            navigate("/admin/dashboard?location=dashboard");
           }}
           className="sidebar-list-item"
         >
@@ -143,7 +143,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         </li>
         <li
           onClick={() => {
-            navigate("/dashboard?location=products");
+            navigate("/admin/dashboard?location=products");
           }}
           className="sidebar-list-item"
         >

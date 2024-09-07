@@ -117,7 +117,7 @@ const Login = () => {
       console.log(user);
 
       // Reference to the user's data in the database
-      const userRef = dbRef(database, "users/" + user.uid);
+      const userRef = dbRef(database, "users/" + user?.uid);
 
       // Check if the user data already exists
       const snapshot = await get(userRef);
@@ -132,11 +132,11 @@ const Login = () => {
       } else {
         // User is new, set data
         await set(userRef, {
-          uid: user.uid,
+          uid: user?.uid,
           firstName: user.displayName.split(" ")[0],
           lastName: user.displayName.split(" ")[1],
           email: user.email,
-          contact: contact,
+          contact: "+"+contact,
           profilePicture: user.photoURL,
           address: address,
         });
@@ -156,13 +156,13 @@ const Login = () => {
 
   const completeUserDetails = () => {
     if (user != null && validateCompleteDetails()) {
-      const newRef = dbRef(database, "users/" + user.uid);
+      const newRef = dbRef(database, "users/" + user?.uid);
       set(newRef, {
-        uid: user.uid,
+        uid: user?.uid,
         firstName: user.displayName.split(" ")[0],
         lastName: user.displayName.split(" ")[1],
         email: user.email,
-        contact: contact,
+        contact: "+"+contact,
         profilePicture: user.photoURL,
         address: address,
       })
