@@ -49,7 +49,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
       unsubscribeAuthState();
     };
   }, [user]);
-  console.log(data)
+
   return (
     <aside
       id="sidebar"

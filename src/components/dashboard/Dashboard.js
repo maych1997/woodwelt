@@ -17,6 +17,7 @@ const Dashboard=()=> {
       <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar}/>
       <Home />
     </div>
+    
   )
 }
 
