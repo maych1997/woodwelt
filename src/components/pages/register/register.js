@@ -200,7 +200,6 @@ const Register = () => {
     setShowCnfrmPassword(!showCnfrmPassword);
   };
   const handleUpload = (user) => {
-    console.log(user);
     if (image) {
       const imageRef = storageRef(storage, `profilepicture/${image.name}`);
       const uploadTask = uploadBytes(imageRef, image);

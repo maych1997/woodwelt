@@ -17,10 +17,10 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../../../backend/firebase/connection";
 import { onAuthStateChanged } from "firebase/auth";
 import PhoneInput from "react-phone-input-2";
-import { LoginAPI, signInWithGoogle } from "../../../backend/firebase/Login";
-import verifyCode from "../../../backend/firebase/VerifyOTP";
-import SendOTPCode from "../../../backend/firebase/OTP";
-import completeUserDetails from "../../../backend/firebase/Details";
+import { LoginAPI, signInWithGoogle } from "../../../backend/firebase/User/Login/Login";
+import verifyCode from "../../../backend/firebase/User/Login/VerifyOTP";
+import SendOTPCode from "../../../backend/firebase/User/Login/OTP";
+import completeUserDetails from "../../../backend/firebase/User/Login/Details";
 
 const Login = () => {
   const navigate = useNavigate();

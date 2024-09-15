@@ -1,5 +1,5 @@
-import { validateCompleteDetails } from "../validation/validation";
-import { database } from "./connection";
+import { validateCompleteDetails } from "../../../validation/validation";
+import { database } from "../../connection";
 import { ref as dbRef, set } from "firebase/database";
 
 const completeUserDetails = (

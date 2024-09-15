@@ -1,5 +1,5 @@
 import { ref as dbRef, get } from "firebase/database";
-import { database } from "./connection";
+import { database } from "../../connection";
 
 const verifyCode = async (setCodeSent, setShow, navigate, code, user) => {
   const userRef = dbRef(database, "users/" + user?.uid);

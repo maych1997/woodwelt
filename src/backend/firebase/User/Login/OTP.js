@@ -1,6 +1,6 @@
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { auth } from "./connection";
-import { validationForOTP } from "../validation/validation";
+import { auth } from "../../connection";
+import { validationForOTP } from "../../../validation/validation";
 
 const SendOTPCode = async (contactOTP, code, setErrors, setCodeSent) => {
   if (validationForOTP(contactOTP, code, setErrors)) {

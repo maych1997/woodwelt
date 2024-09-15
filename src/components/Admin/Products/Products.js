@@ -1,77 +1,189 @@
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import './product.css'
+import { TextField } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { get,ref as dbRef } from "firebase/database";
+import { database } from "../../../backend/firebase/connection";
+import { useState } from "react";
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+
+const options = [
+ 'Edit',
+ 'Delete'
+];
+
+const ITEM_HEIGHT = 48;
 const Products = () => {
+  const navigate=useNavigate();   
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
   const columns = [
-    { field: "id", headerName: "ID", width: 70 },
-    { field: "sku", headerName: "SKU", width: 70 },
+    { field: "image", headerName: "Image", width: 130, 
+      renderCell: (params) => (
+        <img
+          src={params.value}
+          alt="Product"
+          style={{ width: '50px', height: 'auto', objectFit: 'cover' }}
+        />
+      ),
+    },
+    { field: "id", headerName: "ID", width: 20 },
+    { field: "sku", headerName: "SKU", width: 130 },
     { field: "productName", headerName: "Product Name", width: 130 },
-    { field: "productescription", headerName: "Product Description", width: 130 },
+    { field: "description", headerName: "Product Description", width: 200 },
+    { field: "shortDescription", headerName: "Short Description", width: 200 },
+    { field: "stockStatus", headerName: "Stock Status", width: 130 },
     { field: "productType", headerName: "Type", width: 130 },
-    { field: "category", headerName: "Category", width: 130 },
+    // { field: "category", headerName: "Category", width: 130 },
     { field: "qty", headerName: "Quantity", width: 130 },
     {
-      field: "price",
-      headerName: "Price",
+      field: "salePrice",
+      headerName: "Sale Price",
       type: "number",
-      width: 90,
+      width: 130,
     },
     {
-      field: "inventory",
-      headerName: "Inventry",
+      field: "regularPrice",
+      headerName: "Regular Price",
       type: "number",
-      width: 90,
+      width: 130,
     },
-    {
-      field: "availability",
-      headerName: "Availability",
-      type: "number",
-      width: 90,
-    },
-    {
-      field: "color",
-      headerName: "Color", //Multiple Color Selection
-      type: "number",
-      width: 90,
-    },
-    {
-      field: "size",
-      headerName: "Size", //s,m,l,xl,xxl
-      type: "number",
-      width: 90,
-    },
-    {
-      field: "dimensions",
-      headerName: "Dimensions", //s,m,l,xl,xxl
-      type: "number",
-      width: 90,
-    },
+    { field: "productForm", headerName: "Product Form", width: 150,renderCell:(params)=>(
+      params.value[0]==true && params.value[1]==true?
+      'Virtual , Downloadable'
+      :
+      params.value[0]==true && params.value[1]==false?'Virtual':params.value[0]==false && params.value[1]==true?'Downloadable':'N/A'
+    ) },
+    { field: "taxClass", headerName: "Tax Class", width: 130},
+    { field: "taxStatus", headerName: "Tax Status", width: 130 },
+
+    // {
+    //   field: "inventory",
+    //   headerName: "Inventry",
+    //   type: "number",
+    //   width: 90,
+    // },
+    // {
+    //   field: "availability",
+    //   headerName: "Availability",
+    //   type: "number",
+    //   width: 90,
+    // },
+    // {
+    //   field: "color",
+    //   headerName: "Color", //Multiple Color Selection
+    //   type: "number",
+    //   width: 90,
+    // },
+    // {
+    //   field: "size",
+    //   headerName: "Size", //s,m,l,xl,xxl
+    //   type: "number",
+    //   width: 90,
+    // },
+    // {
+    //   field: "dimensions",
+    //   headerName: "Dimensions", //s,m,l,xl,xxl
+    //   type: "number",
+    //   width: 90,
+    // },
     {
       field: "actions",
       headerName: "Actions",
       type: "number",
       width: 90,
+      renderCell:(params)=>(
+        <div>
+        <IconButton
+          aria-label="more"
+          id="long-button"
+          aria-controls={open ? 'long-menu' : undefined}
+          aria-expanded={open ? 'true' : undefined}
+          aria-haspopup="true"
+          onClick={handleClick}
+        >
+          <div className="threeDots">
+          <div className="dots"></div>
+          <div className="dots"></div>
+          <div className="dots"></div>
+          </div>
+        </IconButton>
+        <Menu
+          id="long-menu"
+          MenuListProps={{
+            'aria-labelledby': 'long-button',
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          slotProps={{
+            paper: {
+              style: {
+                maxHeight: ITEM_HEIGHT * 4.5,
+                width: '20ch',
+              },
+            },
+          }}
+        >
+          {options.map((option) => (
+            <MenuItem key={option} selected={option === 'Pyxis'} onClick={handleClose}>
+              {option}
+            </MenuItem>
+          ))}
+        </Menu>
+      </div>
+      )
     },
   ];
 
-  const rows = [
-    { id: 1, lastName: "Snow", firstName: "Jon", age: 35 },
-    { id: 2, lastName: "Lannister", firstName: "Cersei", age: 42 },
-    { id: 3, lastName: "Lannister", firstName: "Jaime", age: 45 },
-    { id: 4, lastName: "Stark", firstName: "Arya", age: 16 },
-    { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-    { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-    { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-    { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-    { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-  ];
+ const [products,setProducts]=useState([]);
+  useEffect(()=>{
+    const fetchProducts = async () => {
+      try {
+        const productRef = dbRef(database, 'products/');
+        const snapshot = await get(productRef);
 
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const productArray = Object.keys(data).map((key,index) => (
+            {
+            id: index,
+            ...data[key]
+          }));
+          setProducts(productArray);
+        } else {
+          console.log('No data available');
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
+  },[]);
   return (
     <div className="productContainer">
       <div className="main-title">
         <h3>PRODUCTS</h3>
+        <div className="action-container">
+        <TextField className="search"  size="small" id="search" label="Search" variant="outlined" />
+        <button className="add-product-button">Filter</button>
+        <button className="add-product-button" onClick={()=>{navigate('/admin/dashboard?location=productForm')}}>Add Product</button>
+        </div>
       </div>
         <DataGrid
-          rows={rows}
+          rows={products}
           columns={columns}
           initialState={{
             pagination: {

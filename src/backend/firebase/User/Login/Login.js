@@ -1,7 +1,7 @@
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, database, provider } from "./connection";
+import { auth, database, provider } from "../../connection";
 import { ref as dbRef, get, set } from "firebase/database";
-import { validateLoginForm } from "../validation/validation";
+import { validateLoginForm } from "../../../validation/validation";
 
 const LoginAPI = async (email, password, setErrors, setLoad, navigate) => {
   if (validateLoginForm(email, password, setErrors, setLoad)) {

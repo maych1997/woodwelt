@@ -7,9 +7,26 @@ import Register from "./components/pages/register/register";
 import Dashboard from "./components/dashboard/Dashboard";
 import PersonalDetails from "./components/pages/personalDetails/personalDetails";
 import NotFound from "./components/pages/notfound/notfound";
+import {catalogVisibility, productData, productForm, productStatus,productStockStatus,productVisibility, taxing} from './backend/firebase/System/Product/Details/ProductDetails'
+
+import { useEffect } from "react";
+import ProductForm from "./components/Admin/Products/ProductForm";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 function App() {
+
+  useEffect(()=>{
+    productStatus();
+    productVisibility();
+    catalogVisibility();
+    productData();
+    taxing();
+    productForm();
+    productStockStatus();
+  },[]);
   return (
+    <Provider store={store}>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/admin/login" replace />} />
@@ -27,6 +44,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
+    </Provider>
   );
 }
 
