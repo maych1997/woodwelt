@@ -6,3 +6,9 @@
 .subContainer1{
     gap: 10px;
 }
+.card-inner{
+    color: #fff;
+}
+.card h4{
+    color: #fff;
+}

@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import Products from '../Admin/Products/Products';
 import Category from '../Admin/Category/Category';
 import Customer from '../Admin/Customer/Customer';
+import ProductForm from '../Admin/Products/ProductForm';
 function Home() {
     const location=useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -70,6 +71,10 @@ function Home() {
         }else if(locationUrl=='customer'){
           return(
             <Customer></Customer>
+          )
+        }else if(locationUrl=='productForm'){
+          return(
+            <ProductForm></ProductForm>
           )
         }
       }

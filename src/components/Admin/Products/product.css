@@ -1,0 +1,105 @@
+.add-product-button{
+    background-color: #1976d2;
+    color: #fff;
+    border: 0px;
+    height: 40px;
+}
+
+.productContainer .main-title{
+    padding-top: 5px;
+    padding-bottom: 5px;
+    justify-content: space-between;
+    display: flex;
+    .action-container{
+        gap: 10px;
+    }
+}
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+@media print {
+	body {
+		margin: 0 !important;
+	}
+}
+.ck-content {
+	font-family: 'Lato';
+	line-height: 1.6;
+	word-break: break-word;
+}
+
+.editor-container_classic-editor .editor-container__editor {
+	min-width: 795px;
+	max-width: 795px;
+}
+.ck-editor__editable p{
+    color: #000;
+}
+.fields-container{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.checkBoxContainer{
+    display: flex;
+    color: #000;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: flex-end;
+}
+.checkBoxContainer p{
+    padding: 0px;
+    margin: 0px;
+}
+.headingContainer{
+    color: #000;
+}
+.plus-button{
+    width: 60px;
+    height: 60px;
+    background-color: #BFC9CA;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    vertical-align: middle;
+}
+
+.plus-button p{
+    margin: 0px;
+    font-size: 30px;
+}
+.product_image{
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+    align-self: baseline;
+    justify-content: center;
+    display: flex;
+}
+.image_upload_container {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+}
+.buttonContainer{
+    justify-content: end;
+    align-items: center;
+    display: flex;
+    gap: 10px;
+}
+.dots{
+    width: 5px;
+    height: 5px;
+    background-color: black;
+    margin: 2px 0;
+    border-radius: 100px;
+}
+.MuiDataGrid-cell{
+    display: flex;
+    justify-content: center !important;
+    align-items: center;
+}
+.MuiDataGrid-columnHeaderTitleContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
