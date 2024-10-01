@@ -47,7 +47,7 @@ const productData=async ()=>{
         await set(catRef, {
             0: 'Simple Product',
             1: 'Grouped Product',
-            2: 'Externl/Affiliate Product',
+            2: 'External/Affiliate Product',
             3: 'Variable Product',
           });
     }

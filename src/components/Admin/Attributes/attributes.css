@@ -5,14 +5,20 @@
   height: 40px;
 }
 
-.productContainer .main-title {
+.attributeContianer .main-title {
   padding-top: 5px;
   padding-bottom: 5px;
-  justify-content: space-between;
+  justify-content: end;
   display: flex;
   .action-container {
     gap: 10px;
   }
+}
+.attributeContianer {
+  color: #000;
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
 }
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
@@ -106,14 +112,16 @@
 .shipping-details {
   display: flex;
   gap: 10px;
+  align-items: end;
 }
-.remove p {
-  color: red;
-  margin: 0;
+.color-text {
+  margin: 0px !important;
 }
-td {
-  vertical-align: middle;
-}
-td .select-attribute {
-  width: 20%;
+.color-text-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
+  margin-left: 5px;
 }

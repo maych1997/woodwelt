@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import ProductForm from "./components/Admin/Products/ProductForm";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import { attributes, sortOrder } from "./backend/firebase/System/Product/Attributes/Attribute";
 
 function App() {
 
@@ -24,6 +25,8 @@ function App() {
     taxing();
     productForm();
     productStockStatus();
+    attributes();
+    sortOrder();
   },[]);
   return (
     <Provider store={store}>
