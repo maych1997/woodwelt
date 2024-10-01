@@ -8,6 +8,7 @@ import {
   BsListCheck,
   BsMenuButtonWideFill,
   BsFillGearFill,
+  BsFillBoxFill,
 } from "react-icons/bs";
 import "./dashboard.css";
 import placeHolder from "../../assets/images/user-place-holder.jpg";
@@ -16,6 +17,7 @@ import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, database } from "../../backend/firebase/connection";
 import { onValue, ref } from "firebase/database";
 import { CircularProgress, LinearProgress } from "@mui/material";
+import { Collapse } from '@mui/material';
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
@@ -78,7 +80,13 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           <div className="profilePictureContainer">
             <img
               style={{ opacity: data?.profilePicture != null ? 1 : 0.5 }}
-              src={data?.profilePicture!='' || data?.profilePicture!="" || data.profilePicture.length!=0?data?.profilePicture:placeHolder}
+              src={
+                data?.profilePicture != "" ||
+                data?.profilePicture != "" ||
+                data.profilePicture.length != 0
+                  ? data?.profilePicture
+                  : placeHolder
+              }
             ></img>
             <div
               style={{
@@ -128,7 +136,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
             {data?.email}
           </p>
           <p style={{ display: data?.contact == null ? "none" : "flex" }}>
-             {data?.contact}
+            {data?.contact}
           </p>
         </div>
       </div>
@@ -148,6 +156,14 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           className="sidebar-list-item"
         >
           <BsFillArchiveFill className="icon" /> Products
+        </li>
+        <li
+          onClick={() => {
+            navigate("/admin/dashboard?location=attributes");
+          }}
+          className="sidebar-list-item"
+        >
+          <BsFillBoxFill className="icon" /> Product Attributes
         </li>
         <li
           onClick={() => {

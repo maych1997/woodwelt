@@ -54,21 +54,46 @@ import { database, storage } from "../../../backend/firebase/connection";
 import { get, set, update } from "firebase/database";
 import { ref as dbRef } from "firebase/database";
 import { Button } from "react-bootstrap";
+import useFetchProductAttributes from "../../../backend/firebase/System/Product/Attributes/FetchProductAttributes";
 const ProductForm = () => {
   const editorRef = useRef(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
-  const [productType, setProductType] = useState({value:0,label:'Simple Product'});
-  const [taxStatus, setTaxStatus] = useState({value:0,label:'Taxable'});
-  const [taxClass, setTaxClass] = useState({value:0,label:'VAT 19%'});
+  const [productType, setProductType] = useState({
+    value: 0,
+    label: "Simple Product",
+  });
+  const [taxStatus, setTaxStatus] = useState({ value: 0, label: "Taxable" });
+  const [taxClass, setTaxClass] = useState({ value: 0, label: "Standard" });
   const [checkedState, setCheckedState] = useState({});
   const productDetails = useSelector((state) => state.store);
   const [image, setImage] = useState(null);
   const [progress, setProgress] = useState(0);
   const [url, setUrl] = useState("");
+  const [attribute, setAttribute] = useState([]);
+  const [productAttribute, setProductAttribute] = useState();
+  const [color,setColor]=useState();
   const handleProductType = (event) => {
-    setProductType({value:event.target.value,label:productDetails.productType.ProducType[event.target.value]});
+    setProductType({
+      value: event.target.value,
+      label: productDetails.productType.ProducType[event.target.value],
+    });
   };
-  useFetchProductDetails();
+  const handleAttributeSelection = (event) => {
+    const selectedValue = event.target.value;
+    if (!attribute.includes(selectedValue)) {
+      setAttribute([...attribute, selectedValue]);
+    }
+  };
+  const handleRemoveAttribute = (index) => {
+    console.log(attribute);
+    if (Array.isArray(attribute)) {
+      // Use the index to filter out the item at that index
+      const updatedAttributes = attribute.filter((_, i) => i !== index);
+      setAttribute(updatedAttributes);
+    } else {
+      console.error("attribute is not an array:", attribute);
+    }
+  };
   useEffect(() => {
     setIsLayoutReady(true);
     return () => setIsLayoutReady(false);
@@ -210,16 +235,28 @@ const ProductForm = () => {
       [index]: event.target.checked,
     }));
   };
-  const [stockStatus, setStockStatus] = useState({value:0,label:'In Stock'});
+  const [stockStatus, setStockStatus] = useState({
+    value: 0,
+    label: "In Stock",
+  });
   // Handler function for radio button changes
   const handleStockStatus = (index) => {
-    setStockStatus({value:index,label:productDetails.productType.StockStatus[index]}); // Update state with the selected value
+    setStockStatus({
+      value: index,
+      label: productDetails.productType.StockStatus[index],
+    }); // Update state with the selected value
   };
   const handleTaxStatus = (event) => {
-    setTaxStatus({value:event.target.value,label:productDetails.productType.TaxStatus[event.target.value]});
+    setTaxStatus({
+      value: event.target.value,
+      label: productDetails.productType.TaxStatus[event.target.value],
+    });
   };
   const handleClassSelection = (event) => {
-    setTaxClass({value:event.target.value,label:productDetails.productType.TaxClass});
+    setTaxClass({
+      value: event.target.value,
+      label: productDetails.productType.TaxClass,
+    });
   };
 
   const fileInputRef = useRef(null);
@@ -244,7 +281,7 @@ const ProductForm = () => {
       .then((url) => {
         setUrl(url);
         // update(dbRef(database, "products/"), {
-          // image: url,
+        // image: url,
         // });
       })
       .catch((error) => {
@@ -255,14 +292,18 @@ const ProductForm = () => {
   const [uploadProgress, setUploadProgress] = useState({});
   const [urls, setUrls] = useState([]);
   const [error, setError] = useState(null);
-  const [sku,setSku]=useState();
-  const [productName,setProductName]=useState();
-  const [qty,setQty]=useState(0);
-  const [description,setDescription]=useState();
-  const [shortDescription,setShortDescription]=useState();
-  const [videoUrl,setVideoUrl]=useState();
-  const [regularPrice,setRegularPrice]=useState();
-  const [salePrice,setSalePrice]=useState();
+  const [sku, setSku] = useState();
+  const [productName, setProductName] = useState();
+  const [qty, setQty] = useState(0);
+  const [description, setDescription] = useState();
+  const [shortDescription, setShortDescription] = useState();
+  const [videoUrl, setVideoUrl] = useState();
+  const [regularPrice, setRegularPrice] = useState();
+  const [salePrice, setSalePrice] = useState(0);
+  const [weight, setWeight] = useState();
+  const [length, setLength] = useState();
+  const [width, setWidth] = useState();
+  const [height, setHeight] = useState();
 
   const handleImageChange = () => {
     fileInputRefGallery.current.click();
@@ -328,32 +369,159 @@ const ProductForm = () => {
         setError("Upload failed");
       });
   };
- const publishProduct=async ()=>{
-    try{
-      const productRef = dbRef(database, "products/"+sku.toLowerCase().replace(/\s+/g, "_"));
-      // Check if the user data already exists
-      await set(productRef, {
-        sku:sku.toLowerCase().replace(/\s+/g, "_"),
-        productName:productName,
-        description:description,
-        shortDescription:shortDescription,
-        videoUrl:videoUrl,
-        image: url,
-        galleryImage:urls,
-        stockStatus:stockStatus.label,
-        productForm:checkedState,
-        productType:productType.label,
-        taxStatus:taxStatus.label,
-        taxClass:taxClass.label,
-        salePrice:salePrice,
-        regularPrice:regularPrice,
-        qty:qty,
-      });
-      alert('Product '+productName+'with sku '+sku.toLowerCase().replace(/\s+/g, "_")+' added successfully');
-    }catch(error){
-      alert(error);
+  const validateProduct = () => {
+    // Check if SKU is provided and valid
+    if (!sku || !sku.trim()) {
+      return "SKU is required.";
     }
- }
+    if (sku.length > 50) {
+      return "SKU must be 50 characters or less.";
+    }
+
+    // Check if Product Name is provided and valid
+    if (!productName || !productName.trim()) {
+      return "Product name is required.";
+    }
+    if (productName.length > 100) {
+      return "Product name must be 100 characters or less.";
+    }
+
+    // Check if Description is provided
+    if (!description || !description.trim()) {
+      return "Description is required.";
+    }
+
+    // Check if Short Description is provided (optional)
+    if (shortDescription && shortDescription.length > 150) {
+      return "Short description must be 150 characters or less.";
+    }
+
+    // Validate URL formats
+    const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/;
+    if (videoUrl && !urlPattern.test(videoUrl)) {
+      return "Video URL is invalid.";
+    }
+    if (url && !urlPattern.test(url)) {
+      return "Image URL is invalid.";
+    }
+    if (urls && urls.some((imageUrl) => !urlPattern.test(imageUrl))) {
+      return "One or more gallery image URLs are invalid.";
+    }
+
+    // Validate stock status
+    if (!stockStatus || !stockStatus.label) {
+      return "Stock status is required.";
+    }
+
+    // Validate Product Form
+    if (!checkedState) {
+      return "Product form must be specified.";
+    }
+
+    // Validate Product Type
+    if (!productType || !productType.label) {
+      return "Product type is required.";
+    }
+
+    // Validate Tax Status and Tax Class
+    if (!taxStatus || !taxStatus.label) {
+      return "Tax status is required.";
+    }
+    if (!taxClass || !taxClass.label) {
+      return "Tax class is required.";
+    }
+
+    // Validate Sale and Regular Prices
+    if (isNaN(salePrice) || salePrice < 0) {
+      return "Sale price must be a non-negative number.";
+    }
+    if (isNaN(regularPrice) || regularPrice < 0) {
+      return "Regular price must be a non-negative number.";
+    }
+
+    // Validate Dimensions
+    if (isNaN(weight) || weight < 0) {
+      return "Weight must be a non-negative number.";
+    }
+    if (isNaN(length) || length < 0) {
+      return "Length must be a non-negative number.";
+    }
+    if (isNaN(height) || height < 0) {
+      return "Height must be a non-negative number.";
+    }
+    if (isNaN(width) || width < 0) {
+      return "Width must be a non-negative number.";
+    }
+
+    // Validate Quantity
+    if (isNaN(qty) || qty < 0) {
+      return "Quantity must be a non-negative number.";
+    }
+
+    return null; // No validation errors
+  };
+  const publishProduct = async () => {
+   
+    // alert(color.name)
+    const validationError = validateProduct();
+    if (validationError) {
+      alert(validationError);
+    } else {
+      try {
+        const productRef = dbRef(
+          database,
+          "products/" + sku.toLowerCase().replace(/\s+/g, "_")
+        );
+        // Check if the user data already exists
+        const snapshot = await get(productRef);
+        if (snapshot.exists()) {
+          alert(
+            `Product with SKU ${sku
+              .toLowerCase()
+              .replace(/\s+/g, "_")} already exists.`
+          );
+          return; // Exit the function if the product exists
+        } else {
+          await set(productRef, {
+            sku: sku.toLowerCase().replace(/\s+/g, "_"),
+            productName: productName,
+            description: description,
+            shortDescription: shortDescription,
+            videoUrl: videoUrl,
+            image: url,
+            galleryImage: urls,
+            stockStatus: stockStatus.label,
+            productForm: checkedState,
+            productType: productType.label,
+            taxStatus: taxStatus.label,
+            taxClass: taxClass.label,
+            salePrice: salePrice,
+            regularPrice: regularPrice,
+            weight: weight,
+            length: length,
+            height: height,
+            width: width,
+            qty: qty,
+            productAttribute: attribute,
+            colorCode:productAttribute?.colorData!=undefined && productAttribute?.colorData?.colorCode!=undefined?productAttribute?.colorData?.colorCode:'',
+            color:productAttribute?.colorData!=undefined && productAttribute?.colorData?.name!=undefined?productAttribute?.colorData?.name:'',
+            size:productAttribute?.sizeData!=undefined && productAttribute?.sizeData?.name!=undefined?productAttribute?.sizeData?.name:''
+          });
+          alert(
+            "Product " +
+              productName +
+              "with sku " +
+              sku.toLowerCase().replace(/\s+/g, "_") +
+              " added successfully"
+          );
+        }
+      } catch (error) {
+        alert(error);
+      }
+    }
+  };
+  useFetchProductAttributes();
+  useFetchProductDetails();
   return (
     <div className="productContainer">
       <div className="main-title">
@@ -368,7 +536,9 @@ const ProductForm = () => {
             label="SKU"
             variant="outlined"
             type="text"
-            onChange={(event)=>{setSku(event.target.value)}}
+            onChange={(event) => {
+              setSku(event.target.value);
+            }}
           />
           <TextField
             className="text-input"
@@ -377,7 +547,9 @@ const ProductForm = () => {
             label="Product Name"
             variant="outlined"
             type="text"
-            onChange={(event)=>{setProductName(event.target.value)}}
+            onChange={(event) => {
+              setProductName(event.target.value);
+            }}
           />
           <TextField
             className="text-input"
@@ -386,17 +558,23 @@ const ProductForm = () => {
             label="Quantity"
             variant="outlined"
             type="text"
-            onChange={(event)=>{setQty(event.target.value)}}
+            onChange={(event) => {
+              setQty(event.target.value);
+            }}
           />
           <div className="headingContainer">
             <h5>Product Description</h5>
           </div>
           <div ref={editorRef}>
             {isLayoutReady && (
-              <CKEditor onChange={ ( event, editor ) => {
-                const data = editor.getData();
-                setDescription(data);
-            } } editor={ClassicEditor} config={editorConfig} />
+              <CKEditor
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  setDescription(data);
+                }}
+                editor={ClassicEditor}
+                config={editorConfig}
+              />
             )}
           </div>
           <div className="headingContainer">
@@ -404,10 +582,14 @@ const ProductForm = () => {
           </div>
           <div ref={editorRef}>
             {isLayoutReady && (
-              <CKEditor onChange={ ( event, editor ) => {
-                const data = editor.getData();
-                setShortDescription(data);
-            } } editor={ClassicEditor} config={editorConfig} />
+              <CKEditor
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  setShortDescription(data);
+                }}
+                editor={ClassicEditor}
+                config={editorConfig}
+              />
             )}
           </div>
           <TextField
@@ -417,7 +599,7 @@ const ProductForm = () => {
             label="Product Video URL"
             variant="outlined"
             type="text"
-            onChange={(event)=>{
+            onChange={(event) => {
               setVideoUrl(event.target.value);
             }}
           />
@@ -425,10 +607,14 @@ const ProductForm = () => {
             <h5>Upload Image</h5>
           </div>
           <div className="image_upload_container">
-           {url.length!=0? <img
-              className="product_image"
-              src={url != null || url != undefined || url != "" ? url : ""}
-            ></img>:''}
+            {url.length != 0 ? (
+              <img
+                className="product_image"
+                src={url != null || url != undefined || url != "" ? url : ""}
+              ></img>
+            ) : (
+              ""
+            )}
             <Button
               className="plus-button"
               variant="contained"
@@ -494,19 +680,9 @@ const ProductForm = () => {
             label="Regular Price"
             variant="outlined"
             type="text"
-            onChange={(event)=>{setRegularPrice(event.target.value)}}
-          />
-           <div className="headingContainer">
-            <h5>Shipping Detail(s)</h5>
-          </div>
-          <TextField
-            className="text-input"
-            id="sales_price"
-            size="small"
-            label="Sales Price"
-            variant="outlined"
-            type="text"
-            onChange={(event)=>{setSalePrice(event.target.value)}}
+            onChange={(event) => {
+              setRegularPrice(event.target.value);
+            }}
           />
           <div className="headingContainer">
             <h5>Sales Price (€)</h5>
@@ -518,8 +694,79 @@ const ProductForm = () => {
             label="Sales Price"
             variant="outlined"
             type="text"
-            onChange={(event)=>{setSalePrice(event.target.value)}}
+            onChange={(event) => {
+              setSalePrice(event.target.value);
+            }}
           />
+          <div className="headingContainer">
+            <h5>Shipping Detail(s)</h5>
+          </div>
+          <div className="shipping-details">
+            <div>
+              <div className="headingContainer">
+                <h6>Weight</h6>
+              </div>
+              <TextField
+                className="text-input"
+                id="weight"
+                size="small"
+                label="Weight"
+                variant="outlined"
+                type="text"
+                onChange={(event) => {
+                  setWeight(event.target.value);
+                }}
+              />
+            </div>
+            <div>
+              <div className="headingContainer">
+                <h6>Length</h6>
+              </div>
+              <TextField
+                className="text-input"
+                id="length"
+                size="small"
+                label="Length"
+                variant="outlined"
+                type="text"
+                onChange={(event) => {
+                  setLength(event.target.value);
+                }}
+              />
+            </div>
+            <div>
+              <div className="headingContainer">
+                <h6>Width</h6>
+              </div>
+              <TextField
+                className="text-input"
+                id="width"
+                size="small"
+                label="Width"
+                variant="outlined"
+                type="text"
+                onChange={(event) => {
+                  setWidth(event.target.value);
+                }}
+              />
+            </div>
+            <div>
+              <div className="headingContainer">
+                <h6>Height</h6>
+              </div>
+              <TextField
+                className="text-input"
+                id="height"
+                size="small"
+                label="Height"
+                variant="outlined"
+                type="text"
+                onChange={(event) => {
+                  setHeight(event.target.value);
+                }}
+              />
+            </div>
+          </div>
           {productDetails?.productType?.ProductForm?.map((item, index) => (
             <div className="checkBoxContainer" key={index}>
               <p>{item}</p>
@@ -566,6 +813,122 @@ const ProductForm = () => {
             })}
           </Select>
           <div className="headingContainer">
+            <h5>Attributes</h5>
+          </div>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={attribute}
+            onChange={(event) => {
+              handleAttributeSelection(event);
+            }}
+            size="small"
+          >
+            {productDetails?.attributeNode != null ||
+            productDetails?.attributeNode != undefined ? (
+              Object.values(productDetails?.attributeNode)?.map(
+                (item, index) => {
+                  return (
+                    <MenuItem
+                      disabled={attribute.includes(index) ? true : false}
+                      key={index}
+                      value={index}
+                    >
+                      {item?.name}
+                    </MenuItem>
+                  );
+                }
+              )
+            ) : (
+              <MenuItem disabled>No attributes available</MenuItem>
+            )}
+          </Select>
+          <div>
+            <table class="table">
+              <thead>
+                {attribute.length != 0 ? (
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Selection Options</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                ) : (
+                  ""
+                )}
+              </thead>
+              {attribute.map((item, index) => {
+                if (
+                  productDetails?.attributeNode != null ||
+                  productDetails?.attributeNode != undefined
+                ) {
+                  return (
+                    <tbody>
+                      <tr>
+                        <td>
+                          {
+                            Object.values(productDetails?.attributeNode)[item]
+                              .name
+                          }
+                        </td>
+                        <td>
+                          <Select
+                            className="select-attribute"
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            size="small"
+                            onChange={(event) => {
+                              console.log(Object.values(Object.values(productDetails?.attributeNode)[item].terms)[event.target.value]);
+                              if(Object.values(productDetails?.attributeNode)[item]
+                              .name=='Color'){
+                              setProductAttribute({
+                                value: event.target.value,
+                                attribute: Object.values(
+                                  productDetails?.attributeNode
+                                )[item].name,
+                                colorData:Object.values(Object.values(productDetails?.attributeNode)[item].terms)[event.target.value]
+                              });
+                            }else if(Object.values(productDetails?.attributeNode)[item]
+                            .name=='Size'){
+                              setProductAttribute({
+                                value: event.target.value,
+                                attribute: Object.values(
+                                  productDetails?.attributeNode
+                                )[item].name,
+                                sizeData:Object.values(Object.values(productDetails?.attributeNode)[item].terms)[event.target.value]
+                              });
+                            }
+                            }}
+                          >
+                            {Object.values(
+                              Object.values(productDetails?.attributeNode)[item]
+                                .terms
+                            ).map((item, index) => {
+                              return (
+                                <MenuItem key={index} value={index}>
+                                  {item?.name}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </td>
+                        <td className="remove">
+                          <button
+                            onClick={() => {
+                              handleRemoveAttribute(index);
+                              setProductAttribute(null);
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  );
+                }
+              })}
+            </table>
+          </div>
+          <div className="headingContainer">
             <h5>Tax Status</h5>
           </div>
           {productType != 1 ? (
@@ -607,16 +970,23 @@ const ProductForm = () => {
                   );
                 })}
               </Select>
-           
-
             </div>
           ) : (
             ""
           )}
-             <div className="buttonContainer">
-                <button className="add-product-button" onClick={()=>{publishProduct()}}>Publish</button>
-                <button className="add-product-button" onClick={()=>{}}>Cancel</button>
-              </div>
+          <div className="buttonContainer">
+            <button
+              className="add-product-button"
+              onClick={() => {
+                publishProduct();
+              }}
+            >
+              Publish
+            </button>
+            <button className="add-product-button" onClick={() => {}}>
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     </div>
