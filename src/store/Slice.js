@@ -7,6 +7,7 @@ const Slice = createSlice({
     productType: null,
     productAttributes:null,
     attributeNode:null,
+    categoryVisibility:null
 },
   reducers: {
     setProductDetails: (state,action) => {
@@ -18,8 +19,11 @@ const Slice = createSlice({
     setAttributeNode: (state,action) => {
       state.attributeNode =action.payload;
     },
+    setCategoryVisibility: (state,action) => {
+      state.categoryVisibility =action.payload;
+    },
   },
 });
 
-export const { setProductDetails,setProductAttributes,setAttributeNode } = Slice.actions;
+export const { setProductDetails,setProductAttributes,setAttributeNode,setCategoryVisibility } = Slice.actions;
 export default Slice.reducer;

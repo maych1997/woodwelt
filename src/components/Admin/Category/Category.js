@@ -1,140 +1,144 @@
-import 
-{ BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill, BsFillBellFill}
- from 'react-icons/bs'
- import 
- { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } 
- from 'recharts';
- 
-const Category=()=>{
-    const data = [
-        {
-          name: 'Page A',
-          uv: 4000,
-          pv: 2400,
-          amt: 2400,
-        },
-        {
-          name: 'Page B',
-          uv: 3000,
-          pv: 1398,
-          amt: 2210,
-        },
-        {
-          name: 'Page C',
-          uv: 2000,
-          pv: 9800,
-          amt: 2290,
-        },
-        {
-          name: 'Page D',
-          uv: 2780,
-          pv: 3908,
-          amt: 2000,
-        },
-        {
-          name: 'Page E',
-          uv: 1890,
-          pv: 4800,
-          amt: 2181,
-        },
-        {
-          name: 'Page F',
-          uv: 2390,
-          pv: 3800,
-          amt: 2500,
-        },
-        {
-          name: 'Page G',
-          uv: 3490,
-          pv: 4300,
-          amt: 2100,
-        },
-      ];
-    return(
-        <>
-        <div className='main-title'>
-        <h3>CATEGORY</h3>
-    </div>
+import { TextField } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import useFetchCategory from "../../../backend/firebase/System/Product/Category/FetchCategory";
+import { DataGrid } from "@mui/x-data-grid";
+import React, { useEffect, useState } from "react";
+import { get, ref } from "firebase/database";
+import { database } from "../../../backend/firebase/connection";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
-    <div className='main-cards'>
-        <div className='card'>
-            <div className='card-inner'>
-                <h3>PRODUCTS</h3>
-                <BsFillArchiveFill className='card_icon'/>
-            </div>
-            <h1>300</h1>
-        </div>
-        <div className='card'>
-            <div className='card-inner'>
-                <h3>CATEGORIES</h3>
-                <BsFillGrid3X3GapFill className='card_icon'/>
-            </div>
-            <h1>12</h1>
-        </div>
-        <div className='card'>
-            <div className='card-inner'>
-                <h3>CUSTOMERS</h3>
-                <BsPeopleFill className='card_icon'/>
-            </div>
-            <h1>33</h1>
-        </div>
-        <div className='card'>
-            <div className='card-inner'>
-                <h3>ALERTS</h3>
-                <BsFillBellFill className='card_icon'/>
-            </div>
-            <h1>42</h1>
-        </div>
-    </div>
+const options = ["Edit", "Delete"];
 
-    <div className='charts'>
-        <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-        width={500}
-        height={300}
-        data={data}
-        margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-        }}
-        >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="pv" fill="#8884d8" />
-            <Bar dataKey="uv" fill="#82ca9d" />
-            </BarChart>
-        </ResponsiveContainer>
+const ITEM_HEIGHT = 48;
+const Category = () => {
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-        <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-            width={500}
-            height={300}
-            data={data}
-            margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
+  const columns = [
+    { field: "id", headerName: "ID", width: 20 },
+    { field: "slug", headerName: "Slug", width: 130 },
+    { field: "categoryName", headerName: "Category Name", width: 130 },
+    { field: "description", headerName: "Description", width: 200 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      type: "number",
+      width: 90,
+      renderCell: (params) => (
+        <div>
+          <IconButton
+            aria-label="more"
+            id="long-button"
+            aria-controls={open ? "long-menu" : undefined}
+            aria-expanded={open ? "true" : undefined}
+            aria-haspopup="true"
+            onClick={handleClick}
+          >
+            <div className="threeDots">
+              <div className="dots"></div>
+              <div className="dots"></div>
+              <div className="dots"></div>
+            </div>
+          </IconButton>
+          <Menu
+            id="long-menu"
+            MenuListProps={{
+              "aria-labelledby": "long-button",
             }}
-            >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
-            </LineChart>
-        </ResponsiveContainer>
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            slotProps={{
+              paper: {
+                style: {
+                  maxHeight: ITEM_HEIGHT * 4.5,
+                  width: "20ch",
+                },
+              },
+            }}
+          >
+            {options.map((option) => (
+              <MenuItem
+                key={option}
+                selected={option === "Pyxis"}
+                onClick={handleClose}
+              >
+                {option}
+              </MenuItem>
+            ))}
+          </Menu>
+        </div>
+      ),
+    },
+  ];
+  useFetchCategory();
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const productRef = ref(database, "category/");
+        const snapshot = await get(productRef);
 
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const categoryArray = Object.keys(data).map((key, index) => ({
+            id: index,
+            ...data[key],
+          }));
+          setCategories(categoryArray);
+        } else {
+          console.log("No data available");
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+  return (
+    <div className="productContainer">
+      <div className="main-title">
+        <h3>Category</h3>
+        <div className="action-container">
+          <TextField
+            className="search"
+            size="small"
+            id="search"
+            label="Search"
+            variant="outlined"
+          />
+          <button className="add-product-button">Filter</button>
+          <button
+            className="add-product-button"
+            onClick={() => {
+              navigate("/admin/dashboard?location=categoryForm");
+            }}
+          >
+            Add Category
+          </button>
+        </div>
+      </div>
+      <DataGrid
+        rows={categories}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: { page: 0, pageSize: 100 },
+          },
+        }}
+        pageSizeOptions={[5, 10]}
+      />
     </div>
-    </>
-    )
-  }
+  );
+};
 
-  export default Category;
+export default Category;

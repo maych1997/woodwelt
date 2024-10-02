@@ -14,6 +14,7 @@ import ProductForm from "./components/Admin/Products/ProductForm";
 import { Provider } from "react-redux";
 import store from "./store/store";
 import { attributes, sortOrder } from "./backend/firebase/System/Product/Attributes/Attribute";
+import { category } from "./backend/firebase/System/Product/Category/Category";
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
     productStockStatus();
     attributes();
     sortOrder();
+    category();
   },[]);
   return (
     <Provider store={store}>

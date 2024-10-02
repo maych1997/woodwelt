@@ -9,6 +9,7 @@ import Customer from '../Admin/Customer/Customer';
 import ProductForm from '../Admin/Products/ProductForm';
 import Attribute from '../Admin/Attributes/Attribute';
 import ConfigureAttribute from '../Admin/Attributes/ConfigureAttribute';
+import CategoryForm from '../Admin/Category/CategoryForm';
 function Home() {
     const location=useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -87,6 +88,12 @@ function Home() {
           return(
             <Attribute></Attribute>
           )
+        }
+        else if(locationUrl=='categoryForm'){
+          return(
+            <CategoryForm></CategoryForm>
+          )
+        
         }
       }
   return (
