@@ -167,7 +167,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         </li>
         <li
           onClick={() => {
-            navigate("/dashboard?location=category");
+            navigate("/admin/dashboard?location=category");
           }}
           className="sidebar-list-item"
         >

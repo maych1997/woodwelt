@@ -65,6 +65,7 @@ const ProductForm = () => {
   const [taxStatus, setTaxStatus] = useState({ value: 0, label: "Taxable" });
   const [taxClass, setTaxClass] = useState({ value: 0, label: "Standard" });
   const [checkedState, setCheckedState] = useState({});
+  const [categoryCheckedState, setCategoryCheckedState] = useState({});
   const productDetails = useSelector((state) => state.store);
   const [image, setImage] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -94,8 +95,29 @@ const ProductForm = () => {
       console.error("attribute is not an array:", attribute);
     }
   };
+  const [categories, setCategories] = useState([]);
   useEffect(() => {
     setIsLayoutReady(true);
+    const fetchCategories = async () => {
+      try {
+        const productRef = dbRef(database, "category/");
+        const snapshot = await get(productRef);
+
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const categoryArray = Object.keys(data).map((key, index) => ({
+            id: index,
+            ...data[key],
+          }));
+          setCategories(categoryArray);
+        } else {
+          console.log("No data available");
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchCategories();
     return () => setIsLayoutReady(false);
   }, []);
   const editorConfig = {
@@ -231,6 +253,12 @@ const ProductForm = () => {
   };
   const handleProductForm = (index) => (event) => {
     setCheckedState((prevState) => ({
+      ...prevState,
+      [index]: event.target.checked,
+    }));
+  };
+  const handleCategorySelect = (index) => (event) => {
+    setCategoryCheckedState((prevState) => ({
       ...prevState,
       [index]: event.target.checked,
     }));
@@ -505,7 +533,8 @@ const ProductForm = () => {
             productAttribute: attribute,
             colorCode:productAttribute?.colorData!=undefined && productAttribute?.colorData?.colorCode!=undefined?productAttribute?.colorData?.colorCode:'',
             color:productAttribute?.colorData!=undefined && productAttribute?.colorData?.name!=undefined?productAttribute?.colorData?.name:'',
-            size:productAttribute?.sizeData!=undefined && productAttribute?.sizeData?.name!=undefined?productAttribute?.sizeData?.name:''
+            size:productAttribute?.sizeData!=undefined && productAttribute?.sizeData?.name!=undefined?productAttribute?.sizeData?.name:'',
+            category:categoryCheckedState,
           });
           alert(
             "Product " +
@@ -522,6 +551,7 @@ const ProductForm = () => {
   };
   useFetchProductAttributes();
   useFetchProductDetails();
+  console.log(categoryCheckedState)
   return (
     <div className="productContainer">
       <div className="main-title">
@@ -562,6 +592,21 @@ const ProductForm = () => {
               setQty(event.target.value);
             }}
           />
+          <div className="headingContainer">
+            <h5>Set Category</h5>
+          </div>
+          <div className="category_selection_container">
+            {categories?.map((item, index) => (
+            <div className="checkBoxContainer" key={index}>
+              <p>{item.categoryName}</p>
+              <Checkbox
+                checked={!!categoryCheckedState[index]} // Convert undefined to false
+                onChange={handleCategorySelect(index)}
+                size="small"
+              />
+            </div>
+          ))}
+          </div>
           <div className="headingContainer">
             <h5>Product Description</h5>
           </div>

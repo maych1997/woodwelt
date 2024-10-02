@@ -23,6 +23,8 @@ const Products = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -50,7 +52,13 @@ const Products = () => {
     { field: "shortDescription", headerName: "Short Description", width: 200 },
     { field: "stockStatus", headerName: "Stock Status", width: 130 },
     { field: "productType", headerName: "Type", width: 130 },
-    // { field: "category", headerName: "Category", width: 130 },
+    { field: "category", headerName: "Category", width: 130, renderCell: (params) => 
+      params?.value?.map((item,index)=>{
+        if(item==true){
+          return categories.length-1==index?categories[index].categoryName:categories[index].categoryName+', ';
+        }
+      })
+  },
     { field: "qty", headerName: "Quantity", width: 130 },
     { field: "color", headerName: "Color", width: 130 },
     {
@@ -85,16 +93,22 @@ const Products = () => {
       field: "productForm",
       headerName: "Product Form",
       width: 150,
-      renderCell: (params) =>
-        params?.value[0] == true && params?.value[1] == true
-          ? "Virtual , Downloadable"
-          : (params?.value[0] == true && params?.value[1] == false) ||
-            params.value[1] == undefined
-          ? "Virtual"
-          : params?.value[0] == false ||
-            (params?.value[0] == undefined && params?.value[1] == true)
-          ? "Downloadable"
-          : "N/A",
+      renderCell: (params) => {
+        // Ensure params.value is defined and is an array
+        const values = Array.isArray(params?.value) ? params.value : [undefined, undefined];
+    
+        const [firstValue, secondValue] = values;
+    
+        if (firstValue === true && secondValue === true) {
+            return "Virtual, Downloadable";
+        } else if (firstValue === true && (secondValue === false || secondValue === undefined)) {
+            return "Virtual";
+        } else if (firstValue === false || (firstValue === undefined && secondValue === true)) {
+            return "Downloadable";
+        } else {
+            return "N/A";
+        }
+    }
     },
     { field: "taxClass", headerName: "Tax Class", width: 130 },
     { field: "taxStatus", headerName: "Tax Status", width: 130 },
@@ -182,7 +196,7 @@ const Products = () => {
     },
   ];
 
-  const [products, setProducts] = useState([]);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -240,6 +254,26 @@ const Products = () => {
       // Cleanup subscription on unmount
       return () => unsubscribeData();
     };
+    const fetchCategories = async () => {
+      try {
+        const productRef = dbRef(database, "category/");
+        const snapshot = await get(productRef);
+
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const categoryArray = Object.keys(data).map((key, index) => ({
+            id: index,
+            ...data[key],
+          }));
+          setCategories(categoryArray);
+        } else {
+          console.log("No data available");
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchCategories();
     fetchNodeIds();
     fetchData();
     fetchProducts();
