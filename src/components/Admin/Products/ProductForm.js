@@ -71,7 +71,9 @@ const ProductForm = () => {
   const [progress, setProgress] = useState(0);
   const [url, setUrl] = useState("");
   const [attribute, setAttribute] = useState([]);
-  const [productAttribute, setProductAttribute] = useState();
+  const [productAttributeSize, setProductAttributeSize] = useState();
+  const [productAttributeColor, setProductAttributeColor] = useState();
+  const [multipleAttribute,setMultipleAttribute]=useState([]);
   const [color,setColor]=useState();
   const handleProductType = (event) => {
     setProductType({
@@ -83,10 +85,9 @@ const ProductForm = () => {
     const selectedValue = event.target.value;
     if (!attribute.includes(selectedValue)) {
       setAttribute([...attribute, selectedValue]);
-    }
+    }  
   };
   const handleRemoveAttribute = (index) => {
-    console.log(attribute);
     if (Array.isArray(attribute)) {
       // Use the index to filter out the item at that index
       const updatedAttributes = attribute.filter((_, i) => i !== index);
@@ -489,8 +490,6 @@ const ProductForm = () => {
     return null; // No validation errors
   };
   const publishProduct = async () => {
-   
-    // alert(color.name)
     const validationError = validateProduct();
     if (validationError) {
       alert(validationError);
@@ -531,11 +530,12 @@ const ProductForm = () => {
             width: width,
             qty: qty,
             productAttribute: attribute,
-            colorCode:productAttribute?.colorData!=undefined && productAttribute?.colorData?.colorCode!=undefined?productAttribute?.colorData?.colorCode:'',
-            color:productAttribute?.colorData!=undefined && productAttribute?.colorData?.name!=undefined?productAttribute?.colorData?.name:'',
-            size:productAttribute?.sizeData!=undefined && productAttribute?.sizeData?.name!=undefined?productAttribute?.sizeData?.name:'',
+            colorCode:productAttributeColor?.colorData!=undefined && productAttributeColor?.colorData?.colorCode!=undefined?productAttributeColor?.colorData?.colorCode:'',
+            color:productAttributeColor?.colorData!=undefined && productAttributeColor?.colorData?.name!=undefined?productAttributeColor?.colorData?.name:'',
+            size:productAttributeSize?.sizeData!=undefined && productAttributeSize?.sizeData?.name!=undefined?productAttributeSize?.sizeData?.name:'',
             category:categoryCheckedState,
           });
+        
           alert(
             "Product " +
               productName +
@@ -550,9 +550,7 @@ const ProductForm = () => {
     }
   };
   useFetchProductAttributes();
-  useFetchProductDetails();
-  console.log(categoryCheckedState)
-  return (
+  useFetchProductDetails();  return (
     <div className="productContainer">
       <div className="main-title">
         <h3>Add Product</h3>
@@ -889,7 +887,7 @@ const ProductForm = () => {
             )}
           </Select>
           <div>
-            <table class="table">
+            <table className="table">
               <thead>
                 {attribute.length != 0 ? (
                   <tr>
@@ -922,10 +920,9 @@ const ProductForm = () => {
                             id="demo-simple-select"
                             size="small"
                             onChange={(event) => {
-                              console.log(Object.values(Object.values(productDetails?.attributeNode)[item].terms)[event.target.value]);
                               if(Object.values(productDetails?.attributeNode)[item]
                               .name=='Color'){
-                              setProductAttribute({
+                              setProductAttributeColor({
                                 value: event.target.value,
                                 attribute: Object.values(
                                   productDetails?.attributeNode
@@ -934,7 +931,7 @@ const ProductForm = () => {
                               });
                             }else if(Object.values(productDetails?.attributeNode)[item]
                             .name=='Size'){
-                              setProductAttribute({
+                              setProductAttributeSize({
                                 value: event.target.value,
                                 attribute: Object.values(
                                   productDetails?.attributeNode
@@ -960,7 +957,8 @@ const ProductForm = () => {
                           <button
                             onClick={() => {
                               handleRemoveAttribute(index);
-                              setProductAttribute(null);
+                              setProductAttributeSize(null);
+                              setProductAttributeColor(null);
                             }}
                           >
                             Remove
