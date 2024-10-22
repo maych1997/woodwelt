@@ -1,8 +1,11 @@
 import {
   Alert,
+  Box,
   Checkbox,
+  Chip,
   FormControlLabel,
   MenuItem,
+  OutlinedInput,
   Radio,
   RadioGroup,
   Select,
@@ -55,6 +58,39 @@ import { get, set, update } from "firebase/database";
 import { ref as dbRef } from "firebase/database";
 import { Button } from "react-bootstrap";
 import useFetchProductAttributes from "../../../backend/firebase/System/Product/Attributes/FetchProductAttributes";
+import { useTheme } from '@mui/material/styles';
+
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+const colors = [];
+
+const sizes = [];
+
+function getColorStyles(name, personName, theme) {
+  return {
+    fontWeight: personName?.includes(name)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+}
+
+function getSizeStyles(name, personName, theme) {
+  return {
+    fontWeight: personName?.includes(name)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+}
+
 const ProductForm = () => {
   const editorRef = useRef(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -72,12 +108,69 @@ const ProductForm = () => {
   const [url, setUrl] = useState("");
   const [attribute, setAttribute] = useState([]);
   const [productAttribute, setProductAttribute] = useState();
-  const [color,setColor]=useState();
+  const [shippingEnabled, setShippingEnabled] = useState(false);
+  const theme = useTheme();
+  const [personName, setPersonName] = React.useState([]);
+  const [colorArray, setColorArray] = React.useState([]);
+  const [sizeArray, setSizeArray] = React.useState([]);
+  const [color, setColor] = React.useState();
+  const [size, setSize] = React.useState();
+
+  const handleChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setPersonName(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+    console.log(personName);
+  };
+  
+  const handleChangeSimpleProduct = (event, index, attributeName) => {
+    const {
+      target: { value },
+    } = event;
+    if (attributeName === "Color") {
+      setColor(
+        Object.values(Object.values(productDetails.attributeNode)[index].terms)[
+          value
+        ]
+      );
+    } else if (attributeName === "Size") {
+      setSize(
+        Object.values(Object.values(productDetails.attributeNode)[index].terms)[
+          value
+        ]
+      );
+    }
+  };
+  const handleChangeVariableProduct = (event, index, attributeName) => {
+    const {
+      target: { value },
+    } = event;
+    if (attributeName === "Color") {
+      setColorArray(
+        // On autofill we get a stringified value.
+        typeof value === 'string' ? value.split(',') : value,
+      );
+    } else if (attributeName === "Size") {
+      setSizeArray(
+        // On autofill we get a stringified value.
+        typeof value === 'string' ? value.split(',') : value,
+      );
+    }
+  };
+
   const handleProductType = (event) => {
     setProductType({
-      value: event.target.value,
-      label: productDetails.productType.ProducType[event.target.value],
+      value: event?.target?.value,
+      label: productDetails?.productType?.ProductType[event?.target?.value],
     });
+
+    // if(productType.value==3){
+    //   names.push();
+    // }
   };
   const handleAttributeSelection = (event) => {
     const selectedValue = event.target.value;
@@ -86,7 +179,6 @@ const ProductForm = () => {
     }
   };
   const handleRemoveAttribute = (index) => {
-    console.log(attribute);
     if (Array.isArray(attribute)) {
       // Use the index to filter out the item at that index
       const updatedAttributes = attribute.filter((_, i) => i !== index);
@@ -118,8 +210,32 @@ const ProductForm = () => {
       }
     };
     fetchCategories();
+    if (productDetails.attributeNode != null) {
+      Object.values(productDetails?.attributeNode)?.map((item) => {
+        console.log("Test Size::::::::::::::::::::", item.slug);
+        if (item.slug == "color") {
+          Object.values(item?.terms)?.map((item1) => {
+            colors?.push({
+              name: item1?.name,
+              colorCode: item1.colorCode,
+              slug: item1.slug,
+              color: item1.color,
+            });
+          });
+        } else {
+          Object.values(item?.terms)?.map((item2) => {
+            sizes?.push({
+              name: item2?.name,
+              slug: item2.slug,
+              size: item2.size,
+            });
+          });
+        }
+      });
+    }
     return () => setIsLayoutReady(false);
   }, []);
+
   const editorConfig = {
     toolbar: {
       items: [
@@ -328,10 +444,10 @@ const ProductForm = () => {
   const [videoUrl, setVideoUrl] = useState();
   const [regularPrice, setRegularPrice] = useState();
   const [salePrice, setSalePrice] = useState(0);
-  const [weight, setWeight] = useState();
-  const [length, setLength] = useState();
-  const [width, setWidth] = useState();
-  const [height, setHeight] = useState();
+  const [weight, setWeight] = useState("");
+  const [length, setLength] = useState("");
+  const [width, setWidth] = useState("");
+  const [height, setHeight] = useState("");
 
   const handleImageChange = () => {
     fileInputRefGallery.current.click();
@@ -399,101 +515,164 @@ const ProductForm = () => {
   };
   const validateProduct = () => {
     // Check if SKU is provided and valid
-    if (!sku || !sku.trim()) {
-      return "SKU is required.";
-    }
-    if (sku.length > 50) {
-      return "SKU must be 50 characters or less.";
-    }
-
-    // Check if Product Name is provided and valid
-    if (!productName || !productName.trim()) {
-      return "Product name is required.";
-    }
-    if (productName.length > 100) {
-      return "Product name must be 100 characters or less.";
-    }
-
-    // Check if Description is provided
-    if (!description || !description.trim()) {
-      return "Description is required.";
-    }
-
-    // Check if Short Description is provided (optional)
-    if (shortDescription && shortDescription.length > 150) {
-      return "Short description must be 150 characters or less.";
-    }
-
-    // Validate URL formats
-    const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/;
-    if (videoUrl && !urlPattern.test(videoUrl)) {
-      return "Video URL is invalid.";
-    }
-    if (url && !urlPattern.test(url)) {
-      return "Image URL is invalid.";
-    }
-    if (urls && urls.some((imageUrl) => !urlPattern.test(imageUrl))) {
-      return "One or more gallery image URLs are invalid.";
-    }
-
-    // Validate stock status
-    if (!stockStatus || !stockStatus.label) {
-      return "Stock status is required.";
-    }
-
-    // Validate Product Form
-    if (!checkedState) {
-      return "Product form must be specified.";
-    }
-
-    // Validate Product Type
-    if (!productType || !productType.label) {
-      return "Product type is required.";
-    }
-
-    // Validate Tax Status and Tax Class
-    if (!taxStatus || !taxStatus.label) {
-      return "Tax status is required.";
-    }
-    if (!taxClass || !taxClass.label) {
-      return "Tax class is required.";
-    }
-
-    // Validate Sale and Regular Prices
-    if (isNaN(salePrice) || salePrice < 0) {
-      return "Sale price must be a non-negative number.";
-    }
-    if (isNaN(regularPrice) || regularPrice < 0) {
-      return "Regular price must be a non-negative number.";
-    }
-
-    // Validate Dimensions
-    if (isNaN(weight) || weight < 0) {
-      return "Weight must be a non-negative number.";
-    }
-    if (isNaN(length) || length < 0) {
-      return "Length must be a non-negative number.";
-    }
-    if (isNaN(height) || height < 0) {
-      return "Height must be a non-negative number.";
-    }
-    if (isNaN(width) || width < 0) {
-      return "Width must be a non-negative number.";
-    }
-
-    // Validate Quantity
-    if (isNaN(qty) || qty < 0) {
-      return "Quantity must be a non-negative number.";
-    }
-
-    return null; // No validation errors
+    // if (!sku || !sku.trim()) {
+    //   return "SKU is required.";
+    // }
+    // if (sku.length > 50) {
+    //   return "SKU must be 50 characters or less.";
+    // }
+    // // Check if Product Name is provided and valid
+    // if (!productName || !productName.trim()) {
+    //   return "Product name is required.";
+    // }
+    // if (productName.length > 100) {
+    //   return "Product name must be 100 characters or less.";
+    // }
+    // // Check if Description is provided
+    // if (!description || !description.trim()) {
+    //   return "Description is required.";
+    // }
+    // // Check if Short Description is provided (optional)
+    // if (shortDescription && shortDescription.length > 150) {
+    //   return "Short description must be 150 characters or less.";
+    // }
+    // // Validate URL formats
+    // const urlPattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/;
+    // if (!urlPattern.test(videoUrl)) {
+    //   return "Video URL is invalid.";
+    // }
+    // if (url && !urlPattern.test(url)) {
+    //   return "Image URL is invalid.";
+    // }
+    // if (urls && urls.some((imageUrl) => !urlPattern.test(imageUrl))) {
+    //   return "One or more gallery image URLs are invalid.";
+    // }
+    // // Validate stock status
+    // if (!stockStatus || !stockStatus.label) {
+    //   return "Stock status is required.";
+    // }
+    // // Validate Product Form
+    // if (!checkedState) {
+    //   return "Product form must be specified.";
+    // }
+    // // Validate Product Type
+    // if (!productType || !productType.label) {
+    //   return "Product type is required.";
+    // }
+    // // Validate Tax Status and Tax Class
+    // if (!taxStatus || !taxStatus.label) {
+    //   return "Tax status is required.";
+    // }
+    // if (!taxClass || !taxClass.label) {
+    //   return "Tax class is required.";
+    // }
+    // // Validate Sale and Regular Prices
+    // if (isNaN(salePrice) || salePrice < 0) {
+    //   return "Sale price must be a non-negative number.";
+    // }
+    // if (isNaN(regularPrice) || regularPrice < 0) {
+    //   return "Regular price must be a non-negative number.";
+    // }
+    // // Validate Dimensions
+    // if (isNaN(weight) || weight < 0) {
+    //   return "Weight must be a non-negative number.";
+    // }
+    // if (isNaN(length) || length < 0) {
+    //   return "Length must be a non-negative number.";
+    // }
+    // if (isNaN(height) || height < 0) {
+    //   return "Height must be a non-negative number.";
+    // }
+    // if (isNaN(width) || width < 0) {
+    //   return "Width must be a non-negative number.";
+    // }
+    // // Validate Quantity
+    // if (isNaN(qty) || qty < 0) {
+    //   return "Quantity must be a non-negative number.";
+    // }
+    // return null; // No validation errors
   };
+  const selectedColorCodes=[];
+  const selectedColor=[];
+  const selectedSizes=[];
   const publishProduct = async () => {
-   
-    // alert(color.name)
-    const validationError = validateProduct();
-    if (validationError) {
-      alert(validationError);
+    if (productType.value == 3) {
+      colors.map((color)=>{
+        colorArray.map((colorArray,index)=>{
+          if(colorArray==color.name){
+            selectedColorCodes[index]=color.colorCode;
+          }
+        })
+      })
+      colors.map((color)=>{
+        colorArray.map((colorArray,index)=>{
+          if(colorArray==color.name){
+            selectedColor[index]=color.name;
+          }
+        })
+      })
+      sizes.map((size)=>{
+        sizeArray.map((sizeArray,index)=>{
+          if(sizeArray==size.name){
+            selectedSizes[index]=size.name;
+          }
+        })
+      })
+      console.log(selectedColor);
+      console.log(selectedColorCodes);
+      console.log(selectedSizes);
+      try {
+        const productRef = dbRef(
+          database,
+          "products/" + sku.toLowerCase().replace(/\s+/g, "_")
+        );
+        // Check if the user data already exists
+        const snapshot = await get(productRef);
+        if (snapshot.exists()) {
+          alert(
+            `Product with SKU ${sku
+              .toLowerCase()
+              .replace(/\s+/g, "_")} already exists.`
+          );
+          return; // Exit the function if the product exists
+        } else {
+          await set(productRef, {
+            sku: sku.toLowerCase().replace(/\s+/g, "_"),
+            productName: productName,
+            description: description,
+            shortDescription: shortDescription,
+            videoUrl: videoUrl,
+            image: url,
+            galleryImage: urls,
+            stockStatus: stockStatus.label,
+            productForm: checkedState,
+            productType: productType.label,
+            taxStatus: taxStatus.label,
+            taxClass: taxClass.label,
+            salePrice: salePrice,
+            regularPrice: regularPrice,
+            weight: weight,
+            length: length,
+            height: height,
+            width: width,
+            qty: qty,
+            productAttribute: attribute,
+            colorCode:selectedColorCodes,
+            color:selectedColor,
+            size:selectedSizes,
+            category: categoryCheckedState,
+          });
+          alert(
+            "Product " +
+              productName +
+              "with sku " +
+              sku.toLowerCase().replace(/\s+/g, "_") +
+              " added successfully"
+          );
+        }
+      } catch (error) {
+        alert(error);
+      }
     } else {
       try {
         const productRef = dbRef(
@@ -531,10 +710,10 @@ const ProductForm = () => {
             width: width,
             qty: qty,
             productAttribute: attribute,
-            colorCode:productAttribute?.colorData!=undefined && productAttribute?.colorData?.colorCode!=undefined?productAttribute?.colorData?.colorCode:'',
-            color:productAttribute?.colorData!=undefined && productAttribute?.colorData?.name!=undefined?productAttribute?.colorData?.name:'',
-            size:productAttribute?.sizeData!=undefined && productAttribute?.sizeData?.name!=undefined?productAttribute?.sizeData?.name:'',
-            category:categoryCheckedState,
+            colorCode: color?.colorCode,
+            color: color?.name,
+            size: size.name,
+            category: categoryCheckedState,
           });
           alert(
             "Product " +
@@ -551,7 +730,7 @@ const ProductForm = () => {
   };
   useFetchProductAttributes();
   useFetchProductDetails();
-  console.log(categoryCheckedState)
+  console.log(categoryCheckedState);
   return (
     <div className="productContainer">
       <div className="main-title">
@@ -597,15 +776,15 @@ const ProductForm = () => {
           </div>
           <div className="category_selection_container">
             {categories?.map((item, index) => (
-            <div className="checkBoxContainer" key={index}>
-              <p>{item.categoryName}</p>
-              <Checkbox
-                checked={!!categoryCheckedState[index]} // Convert undefined to false
-                onChange={handleCategorySelect(index)}
-                size="small"
-              />
-            </div>
-          ))}
+              <div className="checkBoxContainer" key={index}>
+                <p>{item.categoryName}</p>
+                <Checkbox
+                  checked={!!categoryCheckedState[index]} // Convert undefined to false
+                  onChange={handleCategorySelect(index)}
+                  size="small"
+                />
+              </div>
+            ))}
           </div>
           <div className="headingContainer">
             <h5>Product Description</h5>
@@ -745,8 +924,21 @@ const ProductForm = () => {
           />
           <div className="headingContainer">
             <h5>Shipping Detail(s)</h5>
+            <div className="shipping-container">
+              <Checkbox
+                checked={shippingEnabled} // Convert undefined to false
+                onChange={() => {
+                  setShippingEnabled(!shippingEnabled);
+                }}
+                size="small"
+              />
+              <h6>Enable Shipping</h6>
+            </div>
           </div>
-          <div className="shipping-details">
+          <div
+            className="shipping-details"
+            style={{ display: shippingEnabled ? "flex" : "none" }}
+          >
             <div>
               <div className="headingContainer">
                 <h6>Weight</h6>
@@ -811,6 +1003,9 @@ const ProductForm = () => {
                 }}
               />
             </div>
+          </div>
+          <div className="headingContainer">
+            <h5>Product Form</h5>
           </div>
           {productDetails?.productType?.ProductForm?.map((item, index) => (
             <div className="checkBoxContainer" key={index}>
@@ -889,7 +1084,7 @@ const ProductForm = () => {
             )}
           </Select>
           <div>
-            <table class="table">
+            <table className="table">
               <thead>
                 {attribute.length != 0 ? (
                   <tr>
@@ -915,47 +1110,92 @@ const ProductForm = () => {
                               .name
                           }
                         </td>
-                        <td>
-                          <Select
-                            className="select-attribute"
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            size="small"
-                            onChange={(event) => {
-                              console.log(Object.values(Object.values(productDetails?.attributeNode)[item].terms)[event.target.value]);
-                              if(Object.values(productDetails?.attributeNode)[item]
-                              .name=='Color'){
-                              setProductAttribute({
-                                value: event.target.value,
-                                attribute: Object.values(
-                                  productDetails?.attributeNode
-                                )[item].name,
-                                colorData:Object.values(Object.values(productDetails?.attributeNode)[item].terms)[event.target.value]
-                              });
-                            }else if(Object.values(productDetails?.attributeNode)[item]
-                            .name=='Size'){
-                              setProductAttribute({
-                                value: event.target.value,
-                                attribute: Object.values(
-                                  productDetails?.attributeNode
-                                )[item].name,
-                                sizeData:Object.values(Object.values(productDetails?.attributeNode)[item].terms)[event.target.value]
-                              });
-                            }
-                            }}
-                          >
-                            {Object.values(
-                              Object.values(productDetails?.attributeNode)[item]
-                                .terms
-                            ).map((item, index) => {
-                              return (
-                                <MenuItem key={index} value={index}>
-                                  {item?.name}
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </td>
+                        {productType.value == 0 ? (
+                          <td>
+                            <Select
+                              className="select-attribute"
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              size="small"
+                              onChange={(event) => {
+                                handleChangeSimpleProduct(
+                                  event,
+                                  index,
+                                  Object.values(productDetails?.attributeNode)[
+                                    index
+                                  ].name
+                                );
+                              }}
+                            >
+                              {Object.values(
+                                Object.values(productDetails?.attributeNode)[
+                                  item
+                                ].terms
+                              ).map((item, index) => {
+                                return (
+                                  <MenuItem key={index} value={index}>
+                                    {item?.name}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </td>
+                        ) : (
+                          <td>
+                            <Select
+                              labelId="demo-multiple-chip-label"
+                              id="demo-multiple-chip"
+                              multiple
+                              value={ Object.values(productDetails?.attributeNode)[
+                                index
+                              ]?.name=='Color'?colorArray:sizeArray}
+                              onChange={(event) => {
+                                handleChangeVariableProduct(
+                                  event,
+                                  index,
+                                  Object.values(productDetails?.attributeNode)[
+                                    index
+                                  ]?.name
+                                );
+                              }}
+                              input={
+                                <OutlinedInput
+                                  id="select-multiple-chip"
+                                  label="Chip"
+                                />
+                              }
+                              renderValue={(selected) => (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 0.5,
+                                  }}
+                                >
+                                  {selected.map((value) => (
+                                    <Chip key={value} label={value} />
+                                  ))}
+                                </Box>
+                              )}
+                              MenuProps={MenuProps}
+                            >
+                              {Object.values(
+                                Object.values(productDetails?.attributeNode)[
+                                  item
+                                ].terms
+                              ).map((item, index) => {
+                                return (
+                                  <MenuItem style={ Object.values(productDetails?.attributeNode)[
+                                    index
+                                  ]?.name=='Color'?getColorStyles(item?.name, colorArray, theme):getSizeStyles(item?.name, sizeArray, theme)} key={index} value={item.name}>
+                                    {item?.name}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </td>
+                        )}
+
                         <td className="remove">
                           <button
                             onClick={() => {

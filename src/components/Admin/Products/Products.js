@@ -64,8 +64,9 @@ const Products = () => {
     {
       field: "colorCode",
       headerName: "Color Code",
-      width: 130,
-      renderCell: (params) => (
+      width: 200,
+      renderCell: (params) => !String(params?.row?.colorCode).includes(',')?(
+        
         <div
           style={{
             backgroundColor: params.row.colorCode,
@@ -74,7 +75,17 @@ const Products = () => {
             border: params.row.colorCode.length != 0 ? "1px solid" : "",
           }}
         ></div>
-      ),
+      ):String(params.row.colorCode).split(',').map((item)=>(
+        <div
+        style={{
+          backgroundColor: item,
+          height: 25,
+          width: 120,
+          marginRight:5,
+          border: item.length != 0 ? "1px solid" : "",
+        }}
+      ></div>
+      )),
     },
     { field: "size", headerName: "Size", width: 130 },
     {
