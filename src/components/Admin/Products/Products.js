@@ -76,14 +76,14 @@ const Products = () => {
           }}
         ></div>
       ):String(params.row.colorCode).split(',').map((item)=>(
-        console.log(item.length),
+        console.log('COlor Array::::::::::::::',String(item)),
         <div
         style={{
           backgroundColor: item,
           height: 25,
           width: 120,
           marginRight:5,
-          border: item.length != 0 ? "1px solid" : '0px',
+          border: String(item).length != 0 ? "1px solid" : "0px",
         }}
       > 
       </div>

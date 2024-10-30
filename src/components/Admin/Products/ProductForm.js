@@ -147,16 +147,19 @@ const ProductForm = () => {
     const {
       target: { value },
     } = event;
+
     if (attributeName === "Color") {
       setColorArray(
         // On autofill we get a stringified value.
         typeof value === 'string' ? value.split(',') : value,
       );
     } else if (attributeName === "Size") {
+      console.log(value);
       setSizeArray(
         // On autofill we get a stringified value.
         typeof value === 'string' ? value.split(',') : value,
       );
+      console.log(sizeArray);
     }
   };
 
@@ -1163,14 +1166,14 @@ const ProductForm = () => {
                               id="demo-multiple-chip"
                               multiple
                               value={ Object.values(productDetails?.attributeNode)[
-                                index
+                                item
                               ]?.name=='Color'?colorArray:sizeArray}
                               onChange={(event) => {
                                 handleChangeVariableProduct(
                                   event,
                                   index,
                                   Object.values(productDetails?.attributeNode)[
-                                    index
+                                    item
                                   ]?.name
                                 );
                               }}
