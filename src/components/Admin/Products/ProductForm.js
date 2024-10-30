@@ -113,38 +113,34 @@ const ProductForm = () => {
   const [personName, setPersonName] = React.useState([]);
   const [colorArray, setColorArray] = React.useState([]);
   const [sizeArray, setSizeArray] = React.useState([]);
-  const [color, setColor] = React.useState();
-  const [size, setSize] = React.useState();
+  const [color, setColor] = React.useState('null');
+  const [size, setSize] = React.useState('null');
 
-  const handleChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
-    console.log(personName);
-  };
-  
   const handleChangeSimpleProduct = (event, index, attributeName) => {
     const {
       target: { value },
     } = event;
-    if (attributeName === "Color") {
-      setColor(
-        Object.values(Object.values(productDetails.attributeNode)[index].terms)[
-          value
-        ]
-      );
-    } else if (attributeName === "Size") {
-      setSize(
-        Object.values(Object.values(productDetails.attributeNode)[index].terms)[
-          value
-        ]
-      );
+    if(value!=null || value !=undefined){
+     
+      if (attributeName === "Color") {
+        console.log('Color:::::::::::::::',Object.values(Object.values(productDetails.attributeNode)[0].terms)[value]);
+        setColor(
+          value !== undefined 
+            ? Object.values(Object.values(productDetails.attributeNode)[0].terms)[value]
+            : null
+        );
+      } else if (attributeName === "Size") {
+        console.log('Size:::::::::::::::',Object.values(Object.values(productDetails.attributeNode)));
+        setSize(
+          value !== undefined 
+            ? Object.values(Object.values(productDetails.attributeNode)[1].terms)[value]
+            : null
+        );
+      }
     }
+
   };
+  
   const handleChangeVariableProduct = (event, index, attributeName) => {
     const {
       target: { value },
@@ -173,10 +169,11 @@ const ProductForm = () => {
     // }
   };
   const handleAttributeSelection = (event) => {
-    const selectedValue = event.target.value;
+    const selectedValue = event?.target?.value;
     if (!attribute.includes(selectedValue)) {
       setAttribute([...attribute, selectedValue]);
     }
+    
   };
   const handleRemoveAttribute = (index) => {
     if (Array.isArray(attribute)) {
@@ -217,17 +214,17 @@ const ProductForm = () => {
           Object.values(item?.terms)?.map((item1) => {
             colors?.push({
               name: item1?.name,
-              colorCode: item1.colorCode,
-              slug: item1.slug,
-              color: item1.color,
+              colorCode: item1?.colorCode,
+              slug: item1?.slug,
+              color: item1?.color,
             });
           });
         } else {
           Object.values(item?.terms)?.map((item2) => {
             sizes?.push({
               name: item2?.name,
-              slug: item2.slug,
-              size: item2.size,
+              slug: item2?.slug,
+              size: item2?.size,
             });
           });
         }
@@ -596,25 +593,25 @@ const ProductForm = () => {
   const selectedColor=[];
   const selectedSizes=[];
   const publishProduct = async () => {
-    if (productType.value == 3) {
+    if (productType?.value == 3) {
       colors.map((color)=>{
         colorArray.map((colorArray,index)=>{
-          if(colorArray==color.name){
-            selectedColorCodes[index]=color.colorCode;
+          if(colorArray==color?.name){
+            selectedColorCodes[index]=color?.colorCode;
           }
         })
       })
       colors.map((color)=>{
         colorArray.map((colorArray,index)=>{
-          if(colorArray==color.name){
-            selectedColor[index]=color.name;
+          if(colorArray==color?.name){
+            selectedColor[index]=color?.name;
           }
         })
       })
       sizes.map((size)=>{
         sizeArray.map((sizeArray,index)=>{
-          if(sizeArray==size.name){
-            selectedSizes[index]=size.name;
+          if(sizeArray==size?.name){
+            selectedSizes[index]=size?.name;
           }
         })
       })
@@ -624,23 +621,22 @@ const ProductForm = () => {
       try {
         const productRef = dbRef(
           database,
-          "products/" + sku.toLowerCase().replace(/\s+/g, "_")
+          "products/" + sku?.toLowerCase()?.replace(/\s+/g, "_")
         );
         // Check if the user data already exists
         const snapshot = await get(productRef);
         if (snapshot.exists()) {
           alert(
-            `Product with SKU ${sku
-              .toLowerCase()
+            `Product with SKU ${sku?.toLowerCase()
               .replace(/\s+/g, "_")} already exists.`
           );
           return; // Exit the function if the product exists
         } else {
           await set(productRef, {
-            sku: sku.toLowerCase().replace(/\s+/g, "_"),
+            sku: sku?.toLowerCase()?.replace(/\s+/g, "_"),
             productName: productName,
-            description: description,
-            shortDescription: shortDescription,
+            description: description?.replace(/<[^>]*>?/gm, ''),
+            shortDescription: shortDescription?.replace(/<[^>]*>?/gm, ''),
             videoUrl: videoUrl,
             image: url,
             galleryImage: urls,
@@ -666,7 +662,7 @@ const ProductForm = () => {
             "Product " +
               productName +
               "with sku " +
-              sku.toLowerCase().replace(/\s+/g, "_") +
+              sku?.toLowerCase().replace(/\s+/g, "_") +
               " added successfully"
           );
         }
@@ -677,23 +673,22 @@ const ProductForm = () => {
       try {
         const productRef = dbRef(
           database,
-          "products/" + sku.toLowerCase().replace(/\s+/g, "_")
+          "products/" + sku?.toLowerCase()?.replace(/\s+/g, "_")
         );
         // Check if the user data already exists
         const snapshot = await get(productRef);
         if (snapshot.exists()) {
           alert(
-            `Product with SKU ${sku
-              .toLowerCase()
-              .replace(/\s+/g, "_")} already exists.`
+            `Product with SKU ${sku?.toLowerCase()?.replace(/\s+/g, "_")} already exists.`
           );
           return; // Exit the function if the product exists
         } else {
+          console.log(attribute);
           await set(productRef, {
-            sku: sku.toLowerCase().replace(/\s+/g, "_"),
+            sku: sku?.toLowerCase()?.replace(/\s+/g, "_"),
             productName: productName,
-            description: description,
-            shortDescription: shortDescription,
+            description: description?.replace(/<[^>]*>?/gm, ''),
+            shortDescription: shortDescription?.replace(/<[^>]*>?/gm, ''),
             videoUrl: videoUrl,
             image: url,
             galleryImage: urls,
@@ -710,16 +705,37 @@ const ProductForm = () => {
             width: width,
             qty: qty,
             productAttribute: attribute,
-            colorCode: color?.colorCode,
-            color: color?.name,
-            size: size.name,
+            colorCode: attribute.map((item) => {
+              if (item === 1) {
+                return '';
+              } else if (attribute.includes(item)) { // Check if the item exists in the attribute
+                return color?.colorCode;
+              }
+              return null; // or any default value if the item isn't found
+            }),
+            color: attribute.map((item) => {
+              if (item === 1) {
+                return '';
+              } else if (attribute.includes(item)) { // Check if the item exists in the attribute
+                return color?.name;
+              }
+              return null; // or any default value if the item isn't found
+            }),
+            size: attribute.map((item) => {
+              if (item === 0) {
+                return '';
+              } else if (attribute.includes(item)) { // Check if the item exists in the attribute
+                return size?.name;
+              }
+              return null; // or any default value if the item isn't found
+            }),
             category: categoryCheckedState,
           });
           alert(
             "Product " +
               productName +
               "with sku " +
-              sku.toLowerCase().replace(/\s+/g, "_") +
+              sku?.toLowerCase()?.replace(/\s+/g, "_") +
               " added successfully"
           );
         }
@@ -730,7 +746,7 @@ const ProductForm = () => {
   };
   useFetchProductAttributes();
   useFetchProductDetails();
-  console.log(categoryCheckedState);
+  console.log(size);
   return (
     <div className="productContainer">
       <div className="main-title">
@@ -1038,7 +1054,7 @@ const ProductForm = () => {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={productType.value}
+            value={productType?.value}
             onChange={(event) => {
               handleProductType(event);
             }}
@@ -1106,11 +1122,10 @@ const ProductForm = () => {
                       <tr>
                         <td>
                           {
-                            Object.values(productDetails?.attributeNode)[item]
-                              .name
+                            Object.values(productDetails?.attributeNode)[item]?.name
                           }
                         </td>
-                        {productType.value == 0 ? (
+                        {productType?.value == 0 ? (
                           <td>
                             <Select
                               className="select-attribute"
@@ -1121,16 +1136,14 @@ const ProductForm = () => {
                                 handleChangeSimpleProduct(
                                   event,
                                   index,
-                                  Object.values(productDetails?.attributeNode)[
-                                    index
-                                  ].name
+                                  Object.values(productDetails?.attributeNode)[item]?.name
                                 );
                               }}
                             >
                               {Object.values(
                                 Object.values(productDetails?.attributeNode)[
                                   item
-                                ].terms
+                                ]?.terms
                               ).map((item, index) => {
                                 return (
                                   <MenuItem key={index} value={index}>
@@ -1187,7 +1200,7 @@ const ProductForm = () => {
                                 return (
                                   <MenuItem style={ Object.values(productDetails?.attributeNode)[
                                     index
-                                  ]?.name=='Color'?getColorStyles(item?.name, colorArray, theme):getSizeStyles(item?.name, sizeArray, theme)} key={index} value={item.name}>
+                                  ]?.name=='Color'?getColorStyles(item?.name, colorArray, theme):getSizeStyles(item?.name, sizeArray, theme)} key={index} value={item?.name}>
                                     {item?.name}
                                   </MenuItem>
                                 );
