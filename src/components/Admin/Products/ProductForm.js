@@ -107,10 +107,12 @@ const ProductForm = () => {
   const [progress, setProgress] = useState(0);
   const [url, setUrl] = useState("");
   const [attribute, setAttribute] = useState([]);
-  const [productAttribute, setProductAttribute] = useState();
+  const [productAttributeSize, setProductAttributeSize] = useState();
+  const [productAttributeColor, setProductAttributeColor] = useState();
   const [shippingEnabled, setShippingEnabled] = useState(false);
   const theme = useTheme();
   const [personName, setPersonName] = React.useState([]);
+  const [multipleAttribute,setMultipleAttribute]=useState([]);
   const [colorArray, setColorArray] = React.useState([]);
   const [sizeArray, setSizeArray] = React.useState([]);
   const [color, setColor] = React.useState('null');
@@ -731,6 +733,7 @@ const ProductForm = () => {
             }),
             category: categoryCheckedState,
           });
+        
           alert(
             "Product " +
               productName +
@@ -1213,7 +1216,8 @@ const ProductForm = () => {
                           <button
                             onClick={() => {
                               handleRemoveAttribute(index);
-                              setProductAttribute(null);
+                              setProductAttributeSize(null);
+                              setProductAttributeColor(null);
                             }}
                           >
                             Remove

@@ -197,7 +197,7 @@ const Products = () => {
             {options.map((option) => (
               <MenuItem
                 key={option}
-                selected={option === "Pyxis"}
+                selected={option}
                 onClick={handleClose}
               >
                 {option}
