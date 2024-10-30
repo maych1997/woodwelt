@@ -117,3 +117,13 @@ td {
 td .select-attribute {
   width: 20%;
 }
+.ck-content{
+  color: #000;
+}
+.shipping-container{
+  display: flex;
+  align-items: center;
+  h6{
+    margin: 0;
+  }
+}

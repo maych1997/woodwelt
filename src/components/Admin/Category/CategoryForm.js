@@ -211,11 +211,6 @@ const CategoryForm = () => {
     if (!slug || !slug.trim()) {
       return "Slug is required.";
     }
-
-    // Check if Description is provided
-    if (!description || !description.trim()) {
-      return "Description is required.";
-    }
     return null; // No validation errors
   };
   const publishCategory = async () => {
@@ -242,7 +237,6 @@ const CategoryForm = () => {
           await set(categoryRef, {
             slug: slug.toLowerCase().replace(/\s+/g, "_"),
             categoryName: categoryName,
-            description: description,
             categoryVisibility: categoryVisibility,
             parentCategory:parentCategory,
           });
@@ -308,21 +302,6 @@ const CategoryForm = () => {
               </MenuItem>
             ))}
           </Select>
-          <div className="headingContainer">
-            <h5>Description</h5>
-          </div>
-          <div ref={editorRef}>
-            {isLayoutReady && (
-              <CKEditor
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setDescription(data);
-                }}
-                editor={ClassicEditor}
-                config={editorConfig}
-              />
-            )}
-          </div>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"

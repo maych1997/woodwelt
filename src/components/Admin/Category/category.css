@@ -10,3 +10,6 @@
   .category_selection_container{
     display: flex;
   }
+  .ck-content{
+    color: #000;
+  }

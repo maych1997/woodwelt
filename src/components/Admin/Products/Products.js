@@ -64,17 +64,30 @@ const Products = () => {
     {
       field: "colorCode",
       headerName: "Color Code",
-      width: 130,
-      renderCell: (params) => (
+      width: 200,
+      renderCell: (params) => !String(params?.row?.colorCode).includes(',')?(
+        console.log(':::::::::::::::::::::::::',String(params?.row?.colorCode).length),
         <div
           style={{
             backgroundColor: params.row.colorCode,
             height: 25,
             width: 40,
-            border: params.row.colorCode.length != 0 ? "1px solid" : "",
+            border: String(params?.row?.colorCode).length != 0 ? "1px solid" : "0px",
           }}
         ></div>
-      ),
+      ):String(params.row.colorCode).split(',').map((item)=>(
+        console.log(item.length),
+        <div
+        style={{
+          backgroundColor: item,
+          height: 25,
+          width: 120,
+          marginRight:5,
+          border: item.length != 0 ? "1px solid" : '0px',
+        }}
+      > 
+      </div>
+      )),
     },
     { field: "size", headerName: "Size", width: 130 },
     {
