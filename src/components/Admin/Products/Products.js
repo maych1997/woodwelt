@@ -4,7 +4,7 @@ import "./product.css";
 import { TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { get, ref as dbRef, onValue } from "firebase/database";
+import { get, ref as dbRef, onValue, remove } from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
 import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
@@ -28,8 +28,21 @@ const Products = () => {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleClose = ({ item }) => {
     setAnchorEl(null);
+  };
+  const handleAction = (action, params) => {
+    if (action == "Delete") {
+      const databaseRemove = dbRef(database, "products/" + params?.row?.sku);
+      remove(databaseRemove)
+        .then(() => {
+          window.location.reload();
+          alert("Data removed successfully");
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
   };
 
   const columns = [
@@ -52,42 +65,53 @@ const Products = () => {
     { field: "shortDescription", headerName: "Short Description", width: 200 },
     { field: "stockStatus", headerName: "Stock Status", width: 130 },
     { field: "productType", headerName: "Type", width: 130 },
-    { field: "category", headerName: "Category", width: 130, renderCell: (params) => 
-      params?.value?.map((item,index)=>{
-        if(item==true){
-          return categories.length-1==index?categories[index].categoryName:categories[index].categoryName+', ';
-        }
-      })
-  },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 130,
+      renderCell: (params) =>
+        params?.value?.map((item, index) => {
+          if (item == true) {
+            return categories.length - 1 == index
+              ? categories[index].categoryName
+              : categories[index].categoryName + ", ";
+          }
+        }),
+    },
     { field: "qty", headerName: "Quantity", width: 130 },
     { field: "color", headerName: "Color", width: 130 },
     {
       field: "colorCode",
       headerName: "Color Code",
       width: 200,
-      renderCell: (params) => !String(params?.row?.colorCode).includes(',')?(
-        console.log(':::::::::::::::::::::::::',String(params?.row?.colorCode).length),
-        <div
-          style={{
-            backgroundColor: params.row.colorCode,
-            height: 25,
-            width: 40,
-            border: String(params?.row?.colorCode).length != 0 ? "1px solid" : "0px",
-          }}
-        ></div>
-      ):String(params.row.colorCode).split(',').map((item)=>(
-        console.log('COlor Array::::::::::::::',String(item)),
-        <div
-        style={{
-          backgroundColor: item,
-          height: 25,
-          width: 120,
-          marginRight:5,
-          border: String(item).length != 0 ? "1px solid" : "0px",
-        }}
-      > 
-      </div>
-      )),
+      renderCell: (params) =>
+        !String(params?.row?.colorCode).includes(",") ? (
+          <div
+            style={{
+              backgroundColor: params.row.colorCode,
+              height: 25,
+              width: 40,
+              border:
+                String(params?.row?.colorCode).length != 0
+                  ? "1px solid"
+                  : "0px",
+            }}
+          ></div>
+        ) : (
+          String(params.row.colorCode)
+            .split(",")
+            .map((item) => (
+              <div
+                style={{
+                  backgroundColor: item,
+                  height: 25,
+                  width: 120,
+                  marginRight: 5,
+                  border: String(item).length != 0 ? "1px solid" : "0px",
+                }}
+              ></div>
+            ))
+        ),
     },
     { field: "size", headerName: "Size", width: 130 },
     {
@@ -108,20 +132,28 @@ const Products = () => {
       width: 150,
       renderCell: (params) => {
         // Ensure params.value is defined and is an array
-        const values = Array.isArray(params?.value) ? params.value : [undefined, undefined];
-    
+        const values = Array.isArray(params?.value)
+          ? params.value
+          : [undefined, undefined];
+
         const [firstValue, secondValue] = values;
-    
+
         if (firstValue === true && secondValue === true) {
-            return "Virtual, Downloadable";
-        } else if (firstValue === true && (secondValue === false || secondValue === undefined)) {
-            return "Virtual";
-        } else if (firstValue === false || (firstValue === undefined && secondValue === true)) {
-            return "Downloadable";
+          return "Virtual, Downloadable";
+        } else if (
+          firstValue === true &&
+          (secondValue === false || secondValue === undefined)
+        ) {
+          return "Virtual";
+        } else if (
+          firstValue === false ||
+          (firstValue === undefined && secondValue === true)
+        ) {
+          return "Downloadable";
         } else {
-            return "N/A";
+          return "N/A";
         }
-    }
+      },
     },
     { field: "taxClass", headerName: "Tax Class", width: 130 },
     { field: "taxStatus", headerName: "Tax Status", width: 130 },
@@ -198,7 +230,9 @@ const Products = () => {
               <MenuItem
                 key={option}
                 selected={option}
-                onClick={handleClose}
+                onClick={() => {
+                  handleAction(option, params);
+                }}
               >
                 {option}
               </MenuItem>
@@ -208,7 +242,6 @@ const Products = () => {
       ),
     },
   ];
-
 
   useEffect(() => {
     const fetchProducts = async () => {
