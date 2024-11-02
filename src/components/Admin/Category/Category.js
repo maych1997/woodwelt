@@ -2,8 +2,8 @@ import { TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import useFetchCategory from "../../../backend/firebase/System/Product/Category/FetchCategory";
 import { DataGrid } from "@mui/x-data-grid";
-import React, { useEffect, useState } from "react";
-import { get, ref } from "firebase/database";
+import React, { act, useEffect, useState } from "react";
+import { get, ref as dbRef, remove } from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
@@ -16,13 +16,28 @@ const Category = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event) => {
+  const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const handleClick = (event, rowId) => {
     setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
+    setSelectedRowId(rowId); // Set the selected row ID
   };
 
+  const handleClose = (action, category) => {
+    if (action == "Delete" && category.id == selectedRowId) {
+      const databaseRemove = dbRef(database, "category/" + category?.slug);
+      remove(databaseRemove)
+        .then(() => {
+          setAnchorEl(null);
+          setSelectedRowId(null); // Reset the selected row I
+          window.location.reload();
+          alert("Data removed successfully");
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
+  };
   const columns = [
     { field: "id", headerName: "ID", width: 20 },
     { field: "slug", headerName: "Slug", width: 130 },
@@ -30,17 +45,15 @@ const Category = () => {
     {
       field: "actions",
       headerName: "Actions",
-      type: "number",
       width: 90,
       renderCell: (params) => (
         <div>
           <IconButton
             aria-label="more"
             id="long-button"
-            aria-controls={open ? "long-menu" : undefined}
-            aria-expanded={open ? "true" : undefined}
+            aria-controls={anchorEl ? "long-menu" : undefined}
             aria-haspopup="true"
-            onClick={handleClick}
+            onClick={(event) => handleClick(event, params.row.id)} // Pass the row ID
           >
             <div className="threeDots">
               <div className="dots"></div>
@@ -50,11 +63,8 @@ const Category = () => {
           </IconButton>
           <Menu
             id="long-menu"
-            MenuListProps={{
-              "aria-labelledby": "long-button",
-            }}
             anchorEl={anchorEl}
-            open={open}
+            open={Boolean(anchorEl) && selectedRowId === params.row.id} // Only open if it's the selected row
             onClose={handleClose}
             slotProps={{
               paper: {
@@ -68,8 +78,10 @@ const Category = () => {
             {options.map((option) => (
               <MenuItem
                 key={option}
-                selected={option === "Pyxis"}
-                onClick={handleClose}
+                onClick={() => {
+                  console.log(params.row); // Log the specific row data
+                  handleClose(option, params.row); // Close the menu after clicking
+                }}
               >
                 {option}
               </MenuItem>
@@ -84,7 +96,7 @@ const Category = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const productRef = ref(database, "category/");
+        const productRef = dbRef(database, "category/");
         const snapshot = await get(productRef);
 
         if (snapshot.exists()) {

@@ -4,7 +4,7 @@ import "./attributes.css";
 import { Select, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { get, ref as dbRef, set, push } from "firebase/database";
+import { get, ref as dbRef, set, push, remove } from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
 import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
@@ -28,12 +28,34 @@ const Attribute = () => {
   const [slug, setSlug] = useState();
   const [type, setType] = useState(0);
   const [row, setRow] = useState(null);
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [attributes, setAttributes] = useState([]);
   const open = Boolean(anchorEl);
-  const handleClick = (event) => {
+  const handleClick = (event, rowId) => {
     setAnchorEl(event.currentTarget);
+    setSelectedRowId(rowId); // Set the selected row ID
   };
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleClose = async (action, attribute) => {
+    if (action == "Delete" && attribute.id == selectedRowId) {
+      const productRef = dbRef(database, "attributes/");
+      const snapshot = await get(productRef);
+      if (snapshot.exists()) {
+        const databaseRemove = dbRef(
+          database,
+          "attributes/" + Object.keys(snapshot.val())[attribute.id]
+        );
+        remove(databaseRemove)
+          .then(() => {
+            setAnchorEl(null);
+            setSelectedRowId(null); // Reset the selected row I
+            window.location.reload();
+            alert("Data removed successfully");
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      }
+    }
   };
 
   const columns = [
@@ -59,7 +81,7 @@ const Attribute = () => {
                       backgroundColor: item.colorCode,
                       width: "30px",
                       height: "20px",
-                      border:'1px solid'
+                      border: "1px solid",
                     }}
                   ></div>
                 </div>
@@ -80,20 +102,15 @@ const Attribute = () => {
     {
       field: "actions",
       headerName: "Actions",
-      type: "number",
-      width: 300,
+      width: 90,
       renderCell: (params) => (
         <div>
           <IconButton
             aria-label="more"
             id="long-button"
-            aria-controls={open ? "long-menu" : undefined}
-            aria-expanded={open ? "true" : undefined}
+            aria-controls={anchorEl ? "long-menu" : undefined}
             aria-haspopup="true"
-            onClick={(event) => {
-              handleClick(event);
-              setRow(params.row);
-            }}
+            onClick={(event) => handleClick(event, params.row.id)} // Pass the row ID
           >
             <div className="threeDots">
               <div className="dots"></div>
@@ -103,11 +120,8 @@ const Attribute = () => {
           </IconButton>
           <Menu
             id="long-menu"
-            MenuListProps={{
-              "aria-labelledby": "long-button",
-            }}
             anchorEl={anchorEl}
-            open={open}
+            open={Boolean(anchorEl) && selectedRowId === params.row.id} // Only open if it's the selected row
             onClose={handleClose}
             slotProps={{
               paper: {
@@ -121,15 +135,9 @@ const Attribute = () => {
             {options.map((option) => (
               <MenuItem
                 key={option}
-                selected={option === "Configure Terms"}
                 onClick={() => {
-                  alert(Object.keys(attributeNode)[row.id]);
-                  navigate("/admin/dashboard?location=configureAttribute", {
-                    state: {
-                      row: row,
-                      nodeId: Object.keys(attributeNode)[row.id],
-                    },
-                  });
+                  console.log(params.row); // Log the specific row data
+                  handleClose(option, params.row); // Close the menu after clicking
                 }}
               >
                 {option}
@@ -140,7 +148,7 @@ const Attribute = () => {
       ),
     },
   ];
-  const [attributes, setAttributes] = useState([]);
+
   const addAttribute = async () => {
     try {
       const ref = dbRef(database, "attributes/");
