@@ -212,10 +212,11 @@ const ProductForm = () => {
       }
     };
     fetchCategories();
-    if (productDetails.attributeNode != null) {
+    if (productDetails?.attributeNode != null) {
       Object.values(productDetails?.attributeNode)?.map((item) => {
-        console.log("Test Size::::::::::::::::::::", item.slug);
-        if (item.slug == "color") {
+        console.log("Test Size::::::::::::::::::::", item?.slug);
+        if(item?.terms!=undefined){
+        if (item?.slug == "color") {
           Object.values(item?.terms)?.map((item1) => {
             colors?.push({
               name: item1?.name,
@@ -233,6 +234,7 @@ const ProductForm = () => {
             });
           });
         }
+      }
       });
     }
     return () => setIsLayoutReady(false);
