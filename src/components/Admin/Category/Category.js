@@ -38,6 +38,7 @@ const Category = () => {
         });
     }
   };
+  
   const columns = [
     { field: "id", headerName: "ID", width: 20 },
     { field: "slug", headerName: "Slug", width: 130 },
