@@ -36,6 +36,7 @@ const Attribute = () => {
     setSelectedRowId(rowId); // Set the selected row ID
   };
   const handleClose = async (action, attribute) => {
+    setAnchorEl(null);
     if (action == "Delete" && attribute.id == selectedRowId) {
       const productRef = dbRef(database, "attributes/");
       const snapshot = await get(productRef);
@@ -55,6 +56,14 @@ const Attribute = () => {
             alert(error);
           });
       }
+    }else if(action=="Configure Terms" && attribute.id==selectedRowId){
+      const productRef = dbRef(database, "attributes/");
+      const snapshot = await get(productRef);
+      if (snapshot.exists()) {
+        navigate('/admin/dashboard?location=configureAttribute',{
+          state: { row: Object.values(snapshot.val())[attribute.id], nodeId: Object.keys(snapshot.val())[attribute.id] },
+        });   
+      }
     }
   };
 
@@ -67,9 +76,10 @@ const Attribute = () => {
       field: "terms",
       headerName: "Terms",
       width: 300,
-      renderCell: (params) =>
-        params.row.terms != undefined && params.row.slug == "color"
-          ? Object.values(params.row.terms).map((item, index) => {
+      renderCell: (params) => 
+        params?.row?.terms != undefined && params?.row?.slug == "color"
+          ? Object.values(params?.row?.terms).map((item, index) => {
+            console.log('This is params',params);
               return (
                 <div className="color-text-container">
                   <p className="color-text" key={index}>
@@ -78,7 +88,7 @@ const Attribute = () => {
                   :
                   <div
                     style={{
-                      backgroundColor: item.colorCode,
+                      backgroundColor: item?.colorCode,
                       width: "30px",
                       height: "20px",
                       border: "1px solid",
@@ -87,7 +97,7 @@ const Attribute = () => {
                 </div>
               );
             })
-          : params.row.slug == "size"
+          : params?.row?.terms != undefined && params?.row?.slug == "size"
           ? Object.values(params.row.terms).map((item, index) => {
               return (
                 <div className="color-text-container">
@@ -97,7 +107,7 @@ const Attribute = () => {
                 </div>
               );
             })
-          : "",
+          : "No Terms Added",
     },
     {
       field: "actions",

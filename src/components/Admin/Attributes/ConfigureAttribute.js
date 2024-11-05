@@ -19,8 +19,9 @@ const options = ["Edit", "Delete"];
 const ITEM_HEIGHT = 48;
 const ConfigureAttribute = () => {
   const location = useLocation();
-  const data = location.state.row;
-  const nodeId = location.state.nodeId;
+  console.log(location);
+  const data = location?.state?.row;
+  const nodeId = location?.state?.nodeId;
   const [color, setColor] = useState("#000");
   const [savedColor, setSavedColor] = useState("#000");
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -113,7 +114,7 @@ const ConfigureAttribute = () => {
             ),
           },
         ]
-      : data.slug == "size"
+      : data?.slug == "size"
       ? [
           { field: "id", headerName: "ID", width: 300 },
           { field: "name", headerName: "Name", width: 300 },
@@ -262,17 +263,8 @@ const ConfigureAttribute = () => {
                   <HexColorPicker
                     style={{ marginTop: 20 }}
                     onChange={setColor}
+                    onMouseUp={()=>{setSavedColor(color)}}
                   />
-                  <button
-                    style={{ marginTop: 10 }}
-                    onClick={() => {
-                      setSavedColor(color);
-                      showColorPallete(!colorPallete);
-                    }}
-                    className="add-product-button"
-                  >
-                    Save
-                  </button>
                 </div>
               ) : (
                 ""
