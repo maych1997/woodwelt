@@ -1,0 +1,15 @@
+  
+  #delete-dialog-description {
+    margin-top: 8px;
+    color: #333;
+  }
+  
+  .MuiDialogActions-root {
+    padding: 16px;
+  }
+
+  #buttons-container {
+    margin-bottom: 10px;
+    margin-right: 6px;
+  }
+  
