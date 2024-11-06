@@ -171,6 +171,7 @@ const Category = () => {
 				open={deleteDialogOpen}
 				handleClose={() => setDeleteDialogOpen(false)}
 				handleDelete={handleDeleteConfirm}
+				content={"Are you sure you want to delete this category?"}
 			/>
 		</div>
 	);

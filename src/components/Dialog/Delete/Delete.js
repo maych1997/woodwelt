@@ -3,11 +3,10 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import "./delete.css";
 
-const DeleteDialog = ({ open, handleClose, handleDelete }) => {
+const DeleteDialog = ({ open, handleClose, handleDelete, content }) => {
 	return (
 		<Dialog
 			open={open}
@@ -17,7 +16,7 @@ const DeleteDialog = ({ open, handleClose, handleDelete }) => {
 		>
 			<DialogContent>
 				<DialogContentText id="delete-dialog-description">
-					Are you sure you want to delete this category?
+					{content}
 				</DialogContentText>
 			</DialogContent>
 			<DialogActions id="buttons-container">

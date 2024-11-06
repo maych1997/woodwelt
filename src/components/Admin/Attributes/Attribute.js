@@ -277,7 +277,7 @@ const Attribute = () => {
 				open={deleteDialogOpen}
 				handleClose={() => setDeleteDialogOpen(false)}
 				handleDelete={handleDeleteConfirm}
-				content={`Are you sure you want to delete the attribute "${attributeToDelete?.name}"?`}
+				content={"Are you sure you want to delete this attribute?"}
 			/>
 		</div>
 	);
