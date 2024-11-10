@@ -1,15 +1,17 @@
 // Category.js
-import { TextField } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import useFetchCategory from "../../../backend/firebase/System/Product/Category/FetchCategory";
-import { DataGrid } from "@mui/x-data-grid";
 import React, { useEffect, useState } from "react";
+import {
+	TextField,
+	IconButton,
+	Menu,
+	MenuItem,
+	ClickAwayListener,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { useNavigate } from "react-router-dom";
 import { get, ref as dbRef, remove } from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import ClickAwayListener from "@mui/material/ClickAwayListener";
+import useFetchCategory from "../../../backend/firebase/System/Product/Category/FetchCategory";
 import DeleteDialog from "../../Dialog/Delete/Delete";
 
 const options = ["Edit", "Delete"];
@@ -21,6 +23,9 @@ const Category = () => {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState(null);
 	const [selectedRowId, setSelectedRowId] = useState(null);
+	const [categories, setCategories] = useState([]);
+
+	useFetchCategory();
 
 	const handleClick = (event, rowId) => {
 		setAnchorEl(event.currentTarget);
@@ -52,10 +57,9 @@ const Category = () => {
 	const handleMenuOptionClick = (option, category) => {
 		if (option === "Delete") {
 			setSelectedCategory(category);
-			setDeleteDialogOpen(true); 
-		} else {
-			setAnchorEl(null);
+			setDeleteDialogOpen(true);
 		}
+		handleCloseMenu();
 	};
 
 	const columns = [
@@ -109,90 +113,28 @@ const Category = () => {
 		},
 	];
 
-	useFetchCategory();
-	const [categories, setCategories] = useState([]);
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
 				const productRef = dbRef(database, "category/");
 				const snapshot = await get(productRef);
-
-  const handleClose = (action, category) => {
-    if (action == "Delete" && category.id == selectedRowId) {
-      const databaseRemove = dbRef(database, "category/" + category?.slug);
-      remove(databaseRemove)
-        .then(() => {
-          setAnchorEl(null);
-          setSelectedRowId(null); // Reset the selected row I
-          window.location.reload();
-          alert("Data removed successfully");
-        })
-        .catch((error) => {
-          alert(error);
-        });
-    }
-  };
-  
-  const columns = [
-    { field: "id", headerName: "ID", width: 20 },
-    { field: "slug", headerName: "Slug", width: 130 },
-    { field: "categoryName", headerName: "Category Name", width: 130 },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 90,
-      renderCell: (params) => (
-        <div>
-          <IconButton
-            aria-label="more"
-            id="long-button"
-            aria-controls={anchorEl ? "long-menu" : undefined}
-            aria-haspopup="true"
-            onClick={(event) => handleClick(event, params.row.id)} // Pass the row ID
-          >
-            <div className="threeDots">
-              <div className="dots"></div>
-              <div className="dots"></div>
-              <div className="dots"></div>
-            </div>
-          </IconButton>
-          <Menu
-            id="long-menu"
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl) && selectedRowId === params.row.id} // Only open if it's the selected row
-            onClose={handleClose}
-            slotProps={{
-              paper: {
-                style: {
-                  maxHeight: ITEM_HEIGHT * 4.5,
-                  width: "20ch",
-                },
-              },
-            }}
-          >
-            {options.map((option) => (
-              <MenuItem
-                key={option}
-                onClick={() => {
-                  console.log(params.row); // Log the specific row data
-                  handleClose(option, params.row); // Close the menu after clicking
-                }}
-              >
-                {option}
-              </MenuItem>
-            ))}
-          </Menu>
-        </div>
-      ),
-    },
-  ];
-  useFetchCategory();
-  const [categories, setCategories] = useState([]);
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const productRef = dbRef(database, "category/");
-        const snapshot = await get(productRef);
+				if (snapshot.exists()) {
+					const categoriesData = snapshot.val();
+					const formattedCategories = Object.keys(categoriesData).map(
+						(key) => ({
+							id: key,
+							slug: categoriesData[key].slug,
+							categoryName: categoriesData[key].categoryName,
+						})
+					);
+					setCategories(formattedCategories);
+				}
+			} catch (error) {
+				console.error("Error fetching categories:", error);
+			}
+		};
+		fetchCategories();
+	}, []);
 
 	return (
 		<div className="productContainer">
@@ -209,9 +151,7 @@ const Category = () => {
 					<button className="add-product-button">Filter</button>
 					<button
 						className="add-product-button"
-						onClick={() => {
-							navigate("/admin/dashboard?location=categoryForm");
-						}}
+						onClick={() => navigate("/admin/dashboard?location=categoryForm")}
 					>
 						Add Category
 					</button>
@@ -231,6 +171,7 @@ const Category = () => {
 				open={deleteDialogOpen}
 				handleClose={() => setDeleteDialogOpen(false)}
 				handleDelete={handleDeleteConfirm}
+				content={"Are you sure you want to delete this category?"}
 			/>
 		</div>
 	);
