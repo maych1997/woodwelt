@@ -8,7 +8,7 @@ import {
 	ClickAwayListener,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { get, ref as dbRef, remove } from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
 import useFetchCategory from "../../../backend/firebase/System/Product/Category/FetchCategory";
@@ -19,6 +19,7 @@ const ITEM_HEIGHT = 48;
 
 const Category = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [anchorEl, setAnchorEl] = useState(null);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState(null);
@@ -58,6 +59,13 @@ const Category = () => {
 		if (option === "Delete") {
 			setSelectedCategory(category);
 			setDeleteDialogOpen(true);
+		} else if (option === "Edit") {
+			navigate("/admin/dashboard?location=categoryForm", {
+				state: {
+					editMode: true,
+					categoryData: category,
+				},
+			});
 		}
 		handleCloseMenu();
 	};
