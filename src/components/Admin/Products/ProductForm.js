@@ -59,6 +59,7 @@ import { ref as dbRef } from "firebase/database";
 import { Button } from "react-bootstrap";
 import useFetchProductAttributes from "../../../backend/firebase/System/Product/Attributes/FetchProductAttributes";
 import { useTheme } from '@mui/material/styles';
+import { useLocation, useNavigate } from "react-router-dom";
 
 
 const ITEM_HEIGHT = 48;
@@ -92,6 +93,8 @@ function getSizeStyles(name, personName, theme) {
 }
 
 const ProductForm = () => {
+  const navigate=useNavigate();
+  const location=useLocation();
   const editorRef = useRef(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
   const [productType, setProductType] = useState({
@@ -117,6 +120,22 @@ const ProductForm = () => {
   const [sizeArray, setSizeArray] = React.useState([]);
   const [color, setColor] = React.useState('null');
   const [size, setSize] = React.useState('null');
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({});
+  const [urls, setUrls] = useState([]);
+  const [error, setError] = useState(null);
+  const [sku, setSku] = useState();
+  const [productName, setProductName] = useState();
+  const [qty, setQty] = useState(0);
+  const [description, setDescription] = useState();
+  const [shortDescription, setShortDescription] = useState();
+  const [videoUrl, setVideoUrl] = useState();
+  const [regularPrice, setRegularPrice] = useState();
+  const [salePrice, setSalePrice] = useState(0);
+  const [weight, setWeight] = useState("");
+  const [length, setLength] = useState("");
+  const [width, setWidth] = useState("");
+  const [height, setHeight] = useState("");
 
   const handleChangeSimpleProduct = (event, index, attributeName) => {
     const {
@@ -132,6 +151,7 @@ const ProductForm = () => {
             : null
         );
       } else if (attributeName === "Size") {
+        
         console.log('Size:::::::::::::::',Object.values(Object.values(productDetails.attributeNode)));
         setSize(
           value !== undefined 
@@ -175,7 +195,7 @@ const ProductForm = () => {
   };
   const handleAttributeSelection = (event) => {
     const selectedValue = event?.target?.value;
-    if (!attribute.includes(selectedValue)) {
+    if (!attribute?.includes(selectedValue)) {
       setAttribute([...attribute, selectedValue]);
     }
     
@@ -183,14 +203,33 @@ const ProductForm = () => {
   const handleRemoveAttribute = (index) => {
     if (Array.isArray(attribute)) {
       // Use the index to filter out the item at that index
-      const updatedAttributes = attribute.filter((_, i) => i !== index);
+      const updatedAttributes = attribute?.filter((_, i) => i !== index);
       setAttribute(updatedAttributes);
     } else {
       console.error("attribute is not an array:", attribute);
     }
   };
   const [categories, setCategories] = useState([]);
+  const editAction=()=>{
+    console.log(location.state.productData);
+    setDescription(location.state.productData.description);
+    setShortDescription(location.state.productData.shortDescription);
+    setSku(location.state.productData.sku);
+    setProductName(location.state.productData.productName);
+    setQty(location.state.productData.quantity);
+    setVideoUrl(location.state.productData.videoUrl);
+    setRegularPrice(location.state.productData.regularPrice);
+    setSalePrice(location.state.productData.salePrice);
+    setShippingEnabled(location.state.productData.shippingEnabled);
+    setHeight(location.state.productData.height);
+    setLength(location.state.productData.length);
+    setWeight(location.state.productData.weight);
+    setWidth(location.state.productData.width);
+  }
   useEffect(() => {
+    if(location?.state?.location=='Edit'){
+      editAction();
+    }
     setIsLayoutReady(true);
     const fetchCategories = async () => {
       try {
@@ -225,7 +264,7 @@ const ProductForm = () => {
               color: item1?.color,
             });
           });
-        } else {
+        } else if (item?.slug == "size") {
           Object.values(item?.terms)?.map((item2) => {
             sizes?.push({
               name: item2?.name,
@@ -436,22 +475,6 @@ const ProductForm = () => {
         alert(error.message);
       });
   };
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState({});
-  const [urls, setUrls] = useState([]);
-  const [error, setError] = useState(null);
-  const [sku, setSku] = useState();
-  const [productName, setProductName] = useState();
-  const [qty, setQty] = useState(0);
-  const [description, setDescription] = useState();
-  const [shortDescription, setShortDescription] = useState();
-  const [videoUrl, setVideoUrl] = useState();
-  const [regularPrice, setRegularPrice] = useState();
-  const [salePrice, setSalePrice] = useState(0);
-  const [weight, setWeight] = useState("");
-  const [length, setLength] = useState("");
-  const [width, setWidth] = useState("");
-  const [height, setHeight] = useState("");
 
   const handleImageChange = () => {
     fileInputRefGallery.current.click();
@@ -601,22 +624,22 @@ const ProductForm = () => {
   const selectedSizes=[];
   const publishProduct = async () => {
     if (productType?.value == 3) {
-      colors.map((color)=>{
-        colorArray.map((colorArray,index)=>{
+      colors?.map((color)=>{
+        colorArray?.map((colorArray,index)=>{
           if(colorArray==color?.name){
             selectedColorCodes[index]=color?.colorCode;
           }
         })
       })
-      colors.map((color)=>{
-        colorArray.map((colorArray,index)=>{
+      colors?.map((color)=>{
+        colorArray?.map((colorArray,index)=>{
           if(colorArray==color?.name){
             selectedColor[index]=color?.name;
           }
         })
       })
-      sizes.map((size)=>{
-        sizeArray.map((sizeArray,index)=>{
+      sizes?.map((size)=>{
+        sizeArray?.map((sizeArray,index)=>{
           if(sizeArray==size?.name){
             selectedSizes[index]=size?.name;
           }
@@ -645,6 +668,7 @@ const ProductForm = () => {
             description: description?.replace(/<[^>]*>?/gm, ''),
             shortDescription: shortDescription?.replace(/<[^>]*>?/gm, ''),
             videoUrl: videoUrl,
+            shippingEnabled:shippingEnabled,
             image: url,
             galleryImage: urls,
             stockStatus: stockStatus.label,
@@ -769,6 +793,7 @@ const ProductForm = () => {
             label="SKU"
             variant="outlined"
             type="text"
+            value={sku}
             onChange={(event) => {
               setSku(event.target.value);
             }}
@@ -780,6 +805,7 @@ const ProductForm = () => {
             label="Product Name"
             variant="outlined"
             type="text"
+            value={productName}
             onChange={(event) => {
               setProductName(event.target.value);
             }}
@@ -791,6 +817,7 @@ const ProductForm = () => {
             label="Quantity"
             variant="outlined"
             type="text"
+            value={qty}
             onChange={(event) => {
               setQty(event.target.value);
             }}
@@ -822,6 +849,7 @@ const ProductForm = () => {
                 }}
                 editor={ClassicEditor}
                 config={editorConfig}
+                data={description}
               />
             )}
           </div>
@@ -835,6 +863,7 @@ const ProductForm = () => {
                   const data = editor.getData();
                   setShortDescription(data);
                 }}
+                data={shortDescription}
                 editor={ClassicEditor}
                 config={editorConfig}
               />
@@ -847,6 +876,7 @@ const ProductForm = () => {
             label="Product Video URL"
             variant="outlined"
             type="text"
+            value={videoUrl}
             onChange={(event) => {
               setVideoUrl(event.target.value);
             }}
@@ -928,6 +958,7 @@ const ProductForm = () => {
             label="Regular Price"
             variant="outlined"
             type="text"
+            value={regularPrice}
             onChange={(event) => {
               setRegularPrice(event.target.value);
             }}
@@ -942,6 +973,7 @@ const ProductForm = () => {
             label="Sales Price"
             variant="outlined"
             type="text"
+            value={salePrice}
             onChange={(event) => {
               setSalePrice(event.target.value);
             }}
@@ -974,6 +1006,7 @@ const ProductForm = () => {
                 label="Weight"
                 variant="outlined"
                 type="text"
+                value={weight}
                 onChange={(event) => {
                   setWeight(event.target.value);
                 }}
@@ -990,6 +1023,7 @@ const ProductForm = () => {
                 label="Length"
                 variant="outlined"
                 type="text"
+                value={length}
                 onChange={(event) => {
                   setLength(event.target.value);
                 }}
@@ -1006,6 +1040,7 @@ const ProductForm = () => {
                 label="Width"
                 variant="outlined"
                 type="text"
+                value={width}
                 onChange={(event) => {
                   setWidth(event.target.value);
                 }}
@@ -1022,6 +1057,7 @@ const ProductForm = () => {
                 label="Height"
                 variant="outlined"
                 type="text"
+                value={height}
                 onChange={(event) => {
                   setHeight(event.target.value);
                 }}
@@ -1084,6 +1120,7 @@ const ProductForm = () => {
             id="demo-simple-select"
             value={attribute}
             onChange={(event) => {
+            
               handleAttributeSelection(event);
             }}
             size="small"
@@ -1094,7 +1131,7 @@ const ProductForm = () => {
                 (item, index) => {
                   return (
                     <MenuItem
-                      disabled={attribute.includes(index) ? true : false}
+                      disabled={attribute?.includes(index) ? true : false}
                       key={index}
                       value={index}
                     >
@@ -1110,7 +1147,7 @@ const ProductForm = () => {
           <div>
             <table className="table">
               <thead>
-                {attribute.length != 0 ? (
+                {attribute?.length != 0 ? (
                   <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Selection Options</th>
@@ -1120,7 +1157,7 @@ const ProductForm = () => {
                   ""
                 )}
               </thead>
-              {attribute.map((item, index) => {
+              {attribute?.map((item, index) => {
                 if (
                   productDetails?.attributeNode != null ||
                   productDetails?.attributeNode != undefined
@@ -1130,36 +1167,47 @@ const ProductForm = () => {
                       <tr>
                         <td>
                           {
+                            
                             Object.values(productDetails?.attributeNode)[item]?.name
                           }
                         </td>
                         {productType?.value == 0 ? (
                           <td>
-                            <Select
+                            { Object.values(productDetails?.attributeNode)[
+                                item
+                              ]?.terms!=undefined ||Object.values(productDetails?.attributeNode)[
+                                item
+                              ]?.terms!=null?<Select
                               className="select-attribute"
                               labelId="demo-simple-select-label"
                               id="demo-simple-select"
                               size="small"
                               onChange={(event) => {
-                                handleChangeSimpleProduct(
-                                  event,
-                                  index,
-                                  Object.values(productDetails?.attributeNode)[item]?.name
-                                );
+                                if(productDetails?.attributeNode!=null || productDetails?.attributeNode!=undefined){
+                                  handleChangeSimpleProduct(
+                                    event,
+                                    index,
+                                    Object.values(productDetails?.attributeNode)[item]?.name
+                                  );
+                                }
                               }}
                             >
-                              {Object.values(
-                                Object.values(productDetails?.attributeNode)[
+                              {
+                              Object.values(
+                               Object.values(productDetails?.attributeNode)[
                                   item
                                 ]?.terms
-                              ).map((item, index) => {
+                              )?.map((item, index) => {
                                 return (
                                   <MenuItem key={index} value={index}>
                                     {item?.name}
                                   </MenuItem>
                                 );
-                              })}
-                            </Select>
+                              })
+                              
+                              }
+                            </Select>:<div onClick={()=>{navigate('/admin/dashboard?location=attributes')}}>Configure Terms</div>}
+                            
                           </td>
                         ) : (
                           <td>
