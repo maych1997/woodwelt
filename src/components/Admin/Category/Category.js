@@ -12,7 +12,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { get, ref as dbRef, remove } from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
 import useFetchCategory from "../../../backend/firebase/System/Product/Category/FetchCategory";
-import useFetchCategory from "../../../backend/firebase/System/Product/Category/FetchCategory";
 import DeleteDialog from "../../Dialog/Delete/Delete";
 
 const options = ["Edit", "Delete"];
@@ -25,9 +24,6 @@ const Category = () => {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState(null);
 	const [selectedRowId, setSelectedRowId] = useState(null);
-	const [categories, setCategories] = useState([]);
-
-	useFetchCategory();
 	const [categories, setCategories] = useState([]);
 
 	useFetchCategory();
@@ -71,7 +67,6 @@ const Category = () => {
 				},
 			});
 		}
-		handleCloseMenu();
 		handleCloseMenu();
 	};
 
@@ -148,23 +143,6 @@ const Category = () => {
 		};
 		fetchCategories();
 	}, []);
-				if (snapshot.exists()) {
-					const categoriesData = snapshot.val();
-					const formattedCategories = Object.keys(categoriesData).map(
-						(key) => ({
-							id: key,
-							slug: categoriesData[key].slug,
-							categoryName: categoriesData[key].categoryName,
-						})
-					);
-					setCategories(formattedCategories);
-				}
-			} catch (error) {
-				console.error("Error fetching categories:", error);
-			}
-		};
-		fetchCategories();
-	}, []);
 
 	return (
 		<div className="productContainer">
@@ -181,7 +159,6 @@ const Category = () => {
 					<button className="add-product-button">Filter</button>
 					<button
 						className="add-product-button"
-						onClick={() => navigate("/admin/dashboard?location=categoryForm")}
 						onClick={() => navigate("/admin/dashboard?location=categoryForm")}
 					>
 						Add Category
@@ -202,7 +179,6 @@ const Category = () => {
 				open={deleteDialogOpen}
 				handleClose={() => setDeleteDialogOpen(false)}
 				handleDelete={handleDeleteConfirm}
-				content={"Are you sure you want to delete this category?"}
 				content={"Are you sure you want to delete this category?"}
 			/>
 		</div>
