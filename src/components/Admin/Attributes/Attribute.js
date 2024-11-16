@@ -3,20 +3,22 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Select, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { get, ref as dbRef, set, push, remove } from "firebase/database";
+import { get, ref as dbRef, set, push, remove, onValue } from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
 import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import DeleteDialog from "../../Dialog/Delete/Delete";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setProductAttributes } from "../../../store/Slice";
 
 const options = ["Configure Terms", "Edit", "Delete"];
 const ITEM_HEIGHT = 48;
 
 const Attribute = () => {
 	const navigate = useNavigate();
+	const dispatch=useDispatch();
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const productAttributes = useSelector(
 		(state) => state.store.productAttributes
@@ -192,7 +194,27 @@ const Attribute = () => {
 				console.error("Error fetching products:", error);
 			}
 		};
+		const fetchData = () => {
+			const nodeRef = dbRef(database, "System/");
+
+			const unsubscribeData = onValue(
+				nodeRef,
+				(snapshot) => {
+					const data = snapshot.val();
+					console.log(data);
+					dispatch(setProductAttributes(data));
+				},
+				(error) => {
+					console.error("Error fetching product details:", error);
+					// Handle error state here if needed
+				}
+			);
+
+			// Cleanup subscription on unmount
+			return () => unsubscribeData();
+		};
 		fetchAttributes();
+		fetchData();
 	}, []);
 
 	return (

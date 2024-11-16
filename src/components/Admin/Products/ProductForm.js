@@ -225,6 +225,8 @@ const ProductForm = () => {
     setLength(location.state.productData.length);
     setWeight(location.state.productData.weight);
     setWidth(location.state.productData.width);
+    setCategoryCheckedState(location.state.productData.category);
+    setCheckedState(location.state.productData.productForm);
   }
   useEffect(() => {
     if(location?.state?.location=='Edit'){
@@ -736,27 +738,27 @@ const ProductForm = () => {
             width: width,
             qty: qty,
             productAttribute: attribute,
-            colorCode: attribute.map((item) => {
+            colorCode: attribute?.map((item) => {
               if (item === 1) {
                 return '';
-              } else if (attribute.includes(item)) { // Check if the item exists in the attribute
-                return color?.colorCode;
+              } else if (attribute?.includes(item)) { // Check if the item exists in the attribute
+                return color?.colorCode !=undefined? color?.colorCode:'';
               }
               return null; // or any default value if the item isn't found
             }),
-            color: attribute.map((item) => {
+            color: attribute?.map((item) => {
               if (item === 1) {
                 return '';
-              } else if (attribute.includes(item)) { // Check if the item exists in the attribute
-                return color?.name;
+              } else if (attribute?.includes(item)) { // Check if the item exists in the attribute
+                return color?.name !=undefined? color?.name:'';
               }
               return null; // or any default value if the item isn't found
             }),
-            size: attribute.map((item) => {
+            size: attribute?.map((item) => {
               if (item === 0) {
                 return '';
-              } else if (attribute.includes(item)) { // Check if the item exists in the attribute
-                return size?.name;
+              } else if (attribute?.includes(item)) { // Check if the item exists in the attribute
+                return size?.name !=undefined? size?.name:'';
               }
               return null; // or any default value if the item isn't found
             }),
