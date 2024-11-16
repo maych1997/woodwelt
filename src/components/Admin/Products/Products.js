@@ -39,6 +39,10 @@ const Products = () => {
 		if (action === "Delete") {
 			setSelectedProduct(params); // Set the selected product for deletion
 			setDeleteDialogOpen(true); // Open the delete dialog
+		}else{
+			navigate("/admin/dashboard?location=productForm",{
+				state: { location: action,productData:params.row },
+			  });
 		}
 	};
 
