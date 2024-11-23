@@ -268,3 +268,37 @@ body {
 .circularProgressHide{
   color: #fff;
 }
+
+/* User Menu */
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-menu {
+  position: absolute;
+  top: 40px; /* Adjust as per your header height */
+  right: 0;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1000;
+  min-width: 120px;
+  
+}
+
+.menu-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background: #f0f0f0;
+}
+
+.icon {
+  font-size: 24px;
+  cursor: pointer;
+}
