@@ -3,7 +3,14 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Select, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { get, ref as dbRef, set, push, remove } from "firebase/database";
+import {
+	get,
+	ref as dbRef,
+	set,
+	push,
+	remove,
+	update,
+} from "firebase/database";
 import { database } from "../../../backend/firebase/connection";
 import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
@@ -21,17 +28,27 @@ const Attribute = () => {
 	const productAttributes = useSelector(
 		(state) => state.store.productAttributes
 	);
-	const [name, setName] = useState();
-	const [slug, setSlug] = useState();
+	const [name, setName] = useState("");
+	const [slug, setSlug] = useState("");
 	const [type, setType] = useState(0);
 	const [selectedRowId, setSelectedRowId] = useState(null);
 	const [attributes, setAttributes] = useState([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [attributeToDelete, setAttributeToDelete] = useState(null);
+	const [isEditing, setIsEditing] = useState(false);
+	const [editNodeId, setEditNodeId] = useState(null);
 
 	const handleClick = (event, rowId) => {
 		setAnchorEl(event.currentTarget);
 		setSelectedRowId(rowId);
+	};
+
+	const resetForm = () => {
+		setName("");
+		setSlug("");
+		setType(0);
+		setIsEditing(false);
+		setEditNodeId(null);
 	};
 
 	const handleDeleteConfirm = async () => {
@@ -73,6 +90,47 @@ const Attribute = () => {
 					},
 				});
 			}
+		} else if (action === "Edit" && attribute.id === selectedRowId) {
+			const productRef = dbRef(database, "attributes/");
+			const snapshot = await get(productRef);
+			if (snapshot.exists()) {
+				const attributeData = Object.values(snapshot.val())[attribute.id];
+				const nodeId = Object.keys(snapshot.val())[attribute.id];
+				setName(attributeData.name);
+				setSlug(attributeData.slug);
+				setType(productAttributes?.Attributes?.indexOf(attributeData.type));
+				setIsEditing(true);
+				setEditNodeId(nodeId);
+			}
+		}
+	};
+
+	const handleSubmit = async () => {
+		try {
+			if (isEditing) {
+				// Update existing attribute
+				const attributeRef = dbRef(database, `attributes/${editNodeId}`);
+				await update(attributeRef, {
+					name: name,
+					slug: slug,
+					type: productAttributes?.Attributes[type],
+				});
+				alert("Attribute updated successfully");
+			} else {
+				// Add new attribute
+				const ref = dbRef(database, "attributes/");
+				const attributeRef = push(ref);
+				await set(attributeRef, {
+					name: name,
+					slug: slug,
+					type: productAttributes?.Attributes[type],
+				});
+				alert("Attribute added successfully");
+			}
+			resetForm();
+			window.location.reload();
+		} catch (error) {
+			alert(error);
 		}
 	};
 
@@ -156,22 +214,6 @@ const Attribute = () => {
 		},
 	];
 
-	const addAttribute = async () => {
-		try {
-			const ref = dbRef(database, "attributes/");
-			const attributeRef = push(ref);
-			await set(attributeRef, {
-				name: name,
-				slug: slug,
-				type: productAttributes.Attributes[type],
-			});
-			window.location.reload();
-			alert("Product " + name + " added successfully");
-		} catch (error) {
-			alert(error);
-		}
-	};
-
 	useEffect(() => {
 		const fetchAttributes = async () => {
 			try {
@@ -210,6 +252,7 @@ const Attribute = () => {
 						label="Name"
 						variant="outlined"
 						type="text"
+						value={name}
 						onChange={(event) => setName(event.target.value)}
 					/>
 				</div>
@@ -224,6 +267,7 @@ const Attribute = () => {
 						label="Slug"
 						variant="outlined"
 						type="text"
+						value={slug}
 						onChange={(event) => setSlug(event.target.value)}
 					/>
 				</div>
@@ -246,9 +290,16 @@ const Attribute = () => {
 						))}
 					</Select>
 				</div>
-				<button className="add-product-button" onClick={addAttribute}>
-					Add Attribute
-				</button>
+				<div style={{ display: "flex", gap: "10px" }}>
+					<button className="add-product-button" onClick={handleSubmit}>
+						{isEditing ? "Update Attribute" : "Add Attribute"}
+					</button>
+					{isEditing && (
+						<button className="add-product-button" onClick={resetForm}>
+							Cancel
+						</button>
+					)}
+				</div>
 			</div>
 			<div className="main-title">
 				<div className="action-container">
