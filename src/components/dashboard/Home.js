@@ -10,6 +10,7 @@ import ProductForm from '../Admin/Products/ProductForm';
 import Attribute from '../Admin/Attributes/Attribute';
 import ConfigureAttribute from '../Admin/Attributes/ConfigureAttribute';
 import CategoryForm from '../Admin/Category/CategoryForm';
+import EditProfile from '../Admin/Profile/EditProfile';
 function Home() {
     const location=useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -93,7 +94,12 @@ function Home() {
           return(
             <CategoryForm></CategoryForm>
           )
+        }else if(locationUrl=='editProfile'){
+          return(
+            <EditProfile></EditProfile>
+          )
         
+          
         }
       }
   return (

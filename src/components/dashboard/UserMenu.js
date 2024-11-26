@@ -33,6 +33,12 @@ function UserMenu() {
 			console.error("Error signing out:", error.message);
 		}
 	};
+	
+	const editProfiile=()=>{
+		setMenuOpen((prevState) => !prevState)
+		navigate("/admin/dashboard?location=editProfile");
+		
+	}
 
 	return (
 		<div className="user-menu-container" ref={menuRef}>
@@ -44,7 +50,7 @@ function UserMenu() {
 			</div>
 			{menuOpen && (
 				<div className="user-menu">
-					<div className="menu-item" onClick={() => setMenuOpen(false)}>
+					<div className="menu-item" onClick={() => {editProfiile()}}>
 						Edit Profile
 					</div>
 					<div
