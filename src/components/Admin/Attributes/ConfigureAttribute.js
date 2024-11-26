@@ -21,7 +21,6 @@ const ConfigureAttribute = () => {
   const location = useLocation();
   const data = location?.state?.row;
   const nodeId = location?.state?.nodeId;
-  console.log(':::::', location?.state?.row?.slug.toLowerCase());
   const [color, setColor] = useState("#000");
   const [savedColor, setSavedColor] = useState("#000");
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -40,7 +39,7 @@ const ConfigureAttribute = () => {
   };
 
   const columns =
-    data?.slug.toLowerCase() == "color"
+    data?.type?.toLowerCase() == "color"
       ? [
           { field: "id", headerName: "ID", width: 300 },
           { field: "name", headerName: "Name", width: 300 },
@@ -114,7 +113,7 @@ const ConfigureAttribute = () => {
             ),
           },
         ]
-      : data?.slug.toLowerCase() == "size"
+      : data?.type?.toLowerCase() == "button"
       ? [
           { field: "id", headerName: "ID", width: 300 },
           { field: "name", headerName: "Name", width: 300 },
@@ -176,7 +175,7 @@ const ConfigureAttribute = () => {
 
   const [attributes, setAttributes] = useState([]);
   const addAttribute = async () => {
-    if (data.slug == "color") {
+    if (data?.type == "color") {
       try {
         const ref = dbRef(database, "attributes/" + nodeId + "/terms");
         // Check if the user data already exists
@@ -192,7 +191,7 @@ const ConfigureAttribute = () => {
       } catch (error) {
         alert(error);
       }
-    } else if (data?.slug == "size") {
+    } else if (data?.type == "button") {
       try {
         const ref = dbRef(database, "attributes/" + nodeId + "/terms");
         // Check if the user data already exists
@@ -232,10 +231,10 @@ const ConfigureAttribute = () => {
     };
     fetchAttributes();
   }, []);
-  console.log(attributes);
+  console.log(data);
   return (
     <div className="attributeContianer">
-      {data?.slug.toLowerCase() == "color" ? (
+      {data?.type.toLowerCase() == "color" ? (
         <>
           <h3>Configure {data.name}</h3>
           <div className="shipping-details">
@@ -346,7 +345,7 @@ const ConfigureAttribute = () => {
             pageSizeOptions={[5, 10]}
           />
         </>
-      ) : data?.slug.toLowerCase() == "size" ? (
+      ) : data?.type.toLowerCase() == "button" ? (
         <>
           <h3>Configure {data.name}</h3>
           <div className="shipping-details">
