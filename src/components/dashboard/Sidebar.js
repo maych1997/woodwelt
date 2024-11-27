@@ -67,7 +67,12 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 			</div>
 			<div className="profileCard">
 				<div className="profilePicture">
-					<div className="profilePictureContainer">
+					<div
+						className="profilePictureContainer"
+						onClick={() => {
+							navigate("/admin/dashboard?location=editProfile");
+						}}
+					>
 						<img
 							style={{ opacity: data?.profilePicture != null ? 1 : 0.5 }}
 							src={
@@ -163,7 +168,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 				>
 					<BsFillGrid3X3GapFill className="icon" /> Categories
 				</li>
-				<li
+				{/* <li
 					onClick={() => {
 						navigate("/dashboard?location=customer");
 					}}
@@ -179,7 +184,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 				</li>
 				<li className="sidebar-list-item">
 					<BsFillGearFill className="icon" /> Setting
-				</li>
+				</li> */}
 			</ul>
 		</aside>
 	);
