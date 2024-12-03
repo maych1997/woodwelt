@@ -71,13 +71,13 @@ const Category = () => {
 	};
 
 	const columns = [
-		{ field: "id", headerName: "ID", width: 20 },
-		{ field: "slug", headerName: "Slug", width: 130 },
-		{ field: "categoryName", headerName: "Category Name", width: 130 },
+		{ field: "id", headerName: "ID", width: 200 },
+		{ field: "slug", headerName: "Slug", width: 200 },
+		{ field: "categoryName", headerName: "Category Name", width: 200 },
 		{
 			field: "actions",
 			headerName: "Actions",
-			width: 90,
+			width: 200,
 			renderCell: (params) => (
 				<div>
 					<IconButton

@@ -265,6 +265,10 @@ body {
   align-items: center;
   display: flex;
 }
+
+.profilePictureContainer:hover .penIcon {
+  opacity: 0.8; /* Adjust opacity as needed */
+}
 .circularProgressHide{
   color: #fff;
 }
@@ -281,7 +285,6 @@ body {
   right: 0;
   background: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
   overflow: hidden;
   z-index: 1000;
   min-width: 120px;
@@ -302,3 +305,4 @@ body {
   font-size: 24px;
   cursor: pointer;
 }
+

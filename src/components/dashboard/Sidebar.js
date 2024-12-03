@@ -18,6 +18,8 @@ import { auth, database } from "../../backend/firebase/connection";
 import { onValue, ref } from "firebase/database";
 import { CircularProgress, LinearProgress } from "@mui/material";
 import { Collapse } from "@mui/material";
+import { BsPencil } from "react-icons/bs";
+
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
 	const navigate = useNavigate();
 	const [user, setUser] = useState({});
@@ -67,17 +69,26 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 			</div>
 			<div className="profileCard">
 				<div className="profilePicture">
-					<div className="profilePictureContainer">
+					<div
+						className="profilePictureContainer"
+						onClick={() => {
+							navigate("/admin/dashboard?location=editProfile");
+						}}
+						style={{ position: "relative", cursor: "pointer" }}
+					>
+						{/* Profile Picture */}
 						<img
 							style={{ opacity: data?.profilePicture != null ? 1 : 0.5 }}
 							src={
-								data?.profilePicture != "" ||
-								data?.profilePicture != "" ||
-								data.profilePicture.length != 0
+								data?.profilePicture &&
+								data?.profilePicture !== "" &&
+								data.profilePicture.length !== 0
 									? data?.profilePicture
 									: placeHolder
 							}
-						></img>
+							alt="User Profile"
+						/>
+
 						<div
 							style={{
 								height: "80px",
@@ -90,6 +101,27 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 							}}
 						>
 							<CircularProgress style={{ color: "#fff" }} size={25} />
+						</div>
+
+						{/* Hoverable Pen Icon */}
+						<div
+							className="penIcon"
+							style={{
+								position: "absolute",
+								top: "50%",
+								left: "50%",
+								transform: "translate(-50%, -50%)",
+								opacity: 0,
+								transition: "opacity 0.3s ease",
+								zIndex: 2,
+							}}
+						>
+							<BsPencil
+								style={{
+									color: "white",
+									fontSize: "24px",
+								}}
+							/>
 						</div>
 					</div>
 					<LinearProgress
@@ -163,7 +195,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 				>
 					<BsFillGrid3X3GapFill className="icon" /> Categories
 				</li>
-				<li
+				{/* <li
 					onClick={() => {
 						navigate("/dashboard?location=customer");
 					}}
@@ -179,7 +211,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
 				</li>
 				<li className="sidebar-list-item">
 					<BsFillGearFill className="icon" /> Setting
-				</li>
+				</li> */}
 			</ul>
 		</aside>
 	);
