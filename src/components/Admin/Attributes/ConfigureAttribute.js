@@ -175,7 +175,7 @@ const ConfigureAttribute = () => {
 
   const [attributes, setAttributes] = useState([]);
   const addAttribute = async () => {
-    if (data?.type == "color") {
+    if (data?.type?.toLowerCase() == "color") {
       try {
         const ref = dbRef(database, "attributes/" + nodeId + "/terms");
         // Check if the user data already exists
@@ -191,7 +191,7 @@ const ConfigureAttribute = () => {
       } catch (error) {
         alert(error);
       }
-    } else if (data?.type == "button") {
+    } else if (data?.type?.toLowerCase() == "button") {
       try {
         const ref = dbRef(database, "attributes/" + nodeId + "/terms");
         // Check if the user data already exists
@@ -391,11 +391,7 @@ const ConfigureAttribute = () => {
             <button
               className="add-product-button"
               onClick={() => {
-                if (color != savedColor) {
-                  alert("Please Select and Save the color");
-                } else {
                   addAttribute();
-                }
               }}
             >
               Add Size
