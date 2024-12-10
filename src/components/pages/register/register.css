@@ -1,0 +1,170 @@
+.container{
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    gap: 250px;
+    display: flex;
+}
+.subContainer1{
+    width: 400px;
+    justify-content: center;
+    gap: 40px;
+    display: flex;
+    flex-direction: column;
+}
+.subContainer2{
+    width: 400px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+.headingContainer>h1{
+    margin: 0px;
+}
+.headingContainer>h4{
+    margin: 0px;
+    color: #BFC9CA;
+    font-weight: '100';
+}
+.headingContainer{
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
+}
+.text-input{
+    width: 100%;
+}
+.form-container{
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.action-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.login-button{
+    width: 100%;
+}
+.signup-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.hyphon {
+    border: 1px solid;
+    width: 135px;
+}
+.or-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.social-button-container{
+    justify-content: center;
+    display: flex;
+    gap: 20px;
+}
+.social-button{
+    width: 20%;
+}
+.button-container{
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.login-image{
+    object-fit: cover;
+    height: 500px;
+    width: 500px;
+    scale: 1.12;
+    border-radius: 10px;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+}
+.css-k4qjio-MuiFormHelperText-root{
+    color: red !important;
+    margin-left: 0px !important;
+}
+a{
+    text-decoration: none;
+    color: #1976d2;
+    cursor: pointer;
+}
+.signUpSeperator{
+    text-wrap: nowrap;
+}
+.eye-icon{
+    height: 40px;
+    width: 40px;
+    position: absolute;
+    padding: 10px;
+}
+.password-container{
+    display: flex;
+    justify-content: flex-end;
+}
+.fileName{
+    margin: 0px;
+}
+
+.phoneInput .form-control {
+    padding: 8.5px 50px !important;
+    width: 100% !important;
+}
+.country-list {
+    width: fit-content !important;
+    margin: 0px !important;
+}
+.country-name{
+    text-wrap: nowrap;
+}
+.error{
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 0.75rem;
+    line-height: 1.66;
+    letter-spacing: 0.03333em;
+    text-align: left;
+    margin-top: 4px;
+    margin-right: 14px;
+    margin-bottom: 0;
+    color:red;
+}
+.modal-div {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    background-color: #fff;
+}
+.modal-titleP{
+    color: #000;
+}
+.already-text{
+    margin: 0px;
+}
+.modal-container{
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: fit-content;
+    z-index: 1;
+    background-color: #fff;
+}
+.modal-body{
+    justify-content: center;
+    display: flex;
+}
+.user-modal-div{
+    width: 80%;
+}
+.modal-header{
+    justify-content: center;
+}

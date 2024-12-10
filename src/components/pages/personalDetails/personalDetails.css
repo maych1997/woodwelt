@@ -1,0 +1,11 @@
+.cancelButtonContainer{
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+.cancel-button{
+    background-color: transparent !important;
+    border: 0px !important;
+    color: #BFC9CA !important;
+    box-shadow: none !important;
+}
