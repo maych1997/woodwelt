@@ -702,7 +702,7 @@ import {
 			  productName +
 			  "with sku " +
 			  sku?.toLowerCase().replace(/\s+/g, "_") +
-			  " added successfully"
+			  " updated successfully"
 		  );
 		} catch (error) {
 		  alert(error);
@@ -773,7 +773,7 @@ import {
 			  productName +
 			  "with sku " +
 			  sku?.toLowerCase()?.replace(/\s+/g, "_") +
-			  " added successfully"
+			  " updated successfully"
 		  );
 		} catch (error) {
 		  alert(error);
@@ -946,7 +946,7 @@ import {
 	return (
 	  <div className="productContainer">
 		<div className="main-title">
-		  <h3>Add Product</h3>
+		  <h3>{location?.state?.location == "Edit"?'Edit Product':'Products'}</h3>
 		</div>
 		<div className="sub-container">
 		  <div className="form-container">
