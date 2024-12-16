@@ -136,39 +136,23 @@ import {
 	const [width, setWidth] = useState("");
 	const [height, setHeight] = useState("");
   
-	const handleChangeSimpleProduct = (event, index, attributeName) => {
+	const handleChangeSimpleProduct = (event, attributeObject, attributeName) => {
 	  const {
 		target: { value },
 	  } = event;
-	  if (value != null || value != undefined) {
-		if (attributeName === "Color") {
-		  console.log(
-			"Color:::::::::::::::",
-			Object.values(Object.values(productDetails.attributeNode)[0].terms)[
-			  value
-			]
-		  );
-		  setColor(
-			value !== undefined
-			  ? Object.values(
-				  Object.values(productDetails.attributeNode)[0].terms
-				)[value]
-			  : null
-		  );
-		} else if (attributeName === "Size") {
-		  console.log(
-			"Size:::::::::::::::",
-			Object.values(Object.values(productDetails.attributeNode))
-		  );
-		  setSize(
-			value !== undefined
-			  ? Object.values(
-				  Object.values(productDetails.attributeNode)[1].terms
-				)[value]
-			  : null
-		  );
+		if(attributeName.toLowerCase()==='button'){
+			setSize(
+				value !== undefined
+				  ? Object.values(attributeObject.terms)[value]
+				  : null
+			  );
+		}else if(attributeName.toLowerCase()==='color'){
+			setColor(
+				value !== undefined
+				  ? Object.values(attributeObject.terms)[value]
+				  : null
+			  );
 		}
-	  }
 	};
   
 	const handleChangeVariableProduct = (event, index, attributeName) => {
@@ -218,27 +202,26 @@ import {
 	};
 	const [categories, setCategories] = useState([]);
 	const editAction = () => {
-	  console.log(location.state.productData);
-	  setDescription(location.state.productData.description);
-	  setShortDescription(location.state.productData.shortDescription);
-	  setSku(location.state.productData.sku);
-	  setProductName(location.state.productData.productName);
-	  setQty(location.state.productData.qty);
-	  setVideoUrl(location.state.productData.videoUrl);
-	  setRegularPrice(location.state.productData.regularPrice);
-	  setSalePrice(location.state.productData.salePrice);
-	  setShippingEnabled(location.state.productData.shippingEnabled);
-	  setHeight(location.state.productData.height);
-	  setLength(location.state.productData.length);
-	  setWeight(location.state.productData.weight);
-	  setWidth(location.state.productData.width);
-	  setCategoryCheckedState(location.state.productData.category);
-	  setCheckedState(location.state.productData.productForm);
-	  setTaxStatus(location.state.productData.taxStatus);
-	  setTaxClass(location.state.productData.taxClass);
-	  setAttribute(location.state.productData.productAttribute);
-	  setUrl(location.state.productData.image);
-	  setUrls(location.state.productData.galleryImage);
+	  setDescription(location.state.productData?.description);
+	  setShortDescription(location.state.productData?.shortDescription);
+	  setSku(location.state.productData?.sku);
+	  setProductName(location.state.productData?.productName);
+	  setQty(location.state.productData?.qty);
+	  setVideoUrl(location.state.productData?.videoUrl);
+	  setRegularPrice(location.state.productData?.regularPrice);
+	  setSalePrice(location.state.productData?.salePrice);
+	  setShippingEnabled(location.state.productData?.shippingEnabled);
+	  setHeight(location.state.productData?.height);
+	  setLength(location.state.productData?.length);
+	  setWeight(location.state.productData?.weight);
+	  setWidth(location.state.productData?.width);
+	  setCategoryCheckedState(location.state.productData?.category);
+	  setCheckedState(location.state.productData?.productForm);
+	  setTaxStatus(location.state.productData?.taxStatus);
+	  setTaxClass(location.state.productData?.taxClass);
+	  setAttribute(location.state.productData?.productAttribute);
+	  setUrl(location.state.productData?.image??null);
+	  setUrls(location.state?.productData?.galleryImage??[]);
 	};
 	useEffect(() => {
 	  if (location?.state?.location == "Edit") {
@@ -1079,8 +1062,8 @@ import {
 			  <h5>Upload Gallery Images</h5>
 			</div>
 			<div className="image_upload_container">
-			  {urls.length > 0
-				? urls.map((url, index) => {
+			  {urls?.length > 0
+				? urls?.map((url, index) => {
 					return (
 					  <img
 						key={index}
@@ -1321,6 +1304,7 @@ import {
 				  )}
 				</thead>
 				{attribute?.map((item, index) => {
+					console.log('ARSLAN',attribute)
 				  if (
 					productDetails?.attributeNode != null ||
 					productDetails?.attributeNode != undefined
@@ -1352,11 +1336,17 @@ import {
 									) {
 									  handleChangeSimpleProduct(
 										event,
-										index,
+										Object.values(
+											productDetails?.attributeNode
+										  )[item],
 										Object.values(
 										  productDetails?.attributeNode
-										)[item]?.name
+										)[item]?.type
 									  );
+
+									  console.log('Hi::::::',Object.values(
+										productDetails?.attributeNode
+									  )[item]);
 									}
 								  }}
 								>
