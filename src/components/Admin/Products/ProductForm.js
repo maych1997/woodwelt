@@ -187,9 +187,14 @@ import {
 	};
 	const handleAttributeSelection = (event) => {
 	  const selectedValue = event?.target?.value;
-	  if (!attribute?.includes(selectedValue)) {
-		setAttribute([...attribute, selectedValue]);
-	  }
+	//   if (!attribute.includes(selectedValue)) {
+		setAttribute(prevAttribute => {
+			const updatedAttribute = new Set(prevAttribute);
+			updatedAttribute.add(selectedValue);
+			return [...updatedAttribute]; // Convert Set back to array
+		  });
+	//   }
+	console.log(attribute);
 	};
 	const handleRemoveAttribute = (index) => {
 	  if (Array.isArray(attribute)) {
