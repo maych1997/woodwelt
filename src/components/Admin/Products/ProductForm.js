@@ -140,9 +140,9 @@ const ProductForm = () => {
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
   const [multiColor, setMultiColor] = useState("null");
-  const [selectedColorIndex,setSelectedColorIndex]=useState();
-  const [selectedSizeIndex,setSelectedSizeIndex]=useState();
-  const [selectedMultiColorIndex,setSelectedMultiColorIndex]=useState();
+  const [selectedColorIndex, setSelectedColorIndex] = useState();
+  const [selectedSizeIndex, setSelectedSizeIndex] = useState();
+  const [selectedMultiColorIndex, setSelectedMultiColorIndex] = useState();
   const handleChangeSimpleProduct = (event, attributeObject, attributeName) => {
     const {
       target: { value },
@@ -234,20 +234,22 @@ const ProductForm = () => {
     setAttribute(location.state.productData?.productAttribute);
     setUrl(location.state.productData?.image ?? null);
     setUrls(location.state?.productData?.galleryImage ?? []);
-    setSelectedMultiColorIndex(location.state.productData?.selectedMultiColorIndex);
+    setSelectedMultiColorIndex(
+      location.state.productData?.selectedMultiColorIndex
+    );
     setSelectedColorIndex(location.state.productData?.selectedColorIndex);
     setSelectedSizeIndex(location.state.productData?.selectedSizeIndex);
     setProductType(location.state.productData?.productType);
     console.log("Hello", location.state.productData);
-    location.state.productData?.color?.map((item,index)=>{
-      colorArray[index]=item.name;
-    })
-    location.state.productData?.size?.map((item,index)=>{
-      sizeArray[index]=item.name;
-    })
-    location.state.productData?.multiColor?.map((item,index)=>{
-      multiColorArray[index]=item.name;
-    })
+    location.state.productData?.color?.map((item, index) => {
+      colorArray[index] = item.name;
+    });
+    location.state.productData?.size?.map((item, index) => {
+      sizeArray[index] = item.name;
+    });
+    location.state.productData?.multiColor?.map((item, index) => {
+      multiColorArray[index] = item.name;
+    });
   };
   useEffect(() => {
     if (location?.state?.location == "Edit") {
@@ -671,9 +673,9 @@ const ProductForm = () => {
           size: size,
           multiColor: multiColor,
           category: categoryCheckedState,
-          selectedColorIndex:selectedColorIndex,
-          selectedSizeIndex:selectedSizeIndex,
-          selectedMultiColorIndex:selectedMultiColorIndex,
+          selectedColorIndex: selectedColorIndex,
+          selectedSizeIndex: selectedSizeIndex,
+          selectedMultiColorIndex: selectedMultiColorIndex,
         });
 
         alert(
@@ -807,9 +809,9 @@ const ProductForm = () => {
             size: size,
             multiColor: multiColor,
             category: categoryCheckedState,
-            selectedColorIndex:selectedColorIndex,
-            selectedSizeIndex:selectedSizeIndex,
-            selectedMultiColorIndex:selectedMultiColorIndex,
+            selectedColorIndex: selectedColorIndex,
+            selectedSizeIndex: selectedSizeIndex,
+            selectedMultiColorIndex: selectedMultiColorIndex,
           });
 
           alert(
@@ -1236,13 +1238,22 @@ const ProductForm = () => {
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 size="small"
-                                value={Object.values(productDetails?.attributeNode)[
-                                  item
-                                ]?.type.toLowerCase() == "color"?selectedColorIndex:Object.values(productDetails?.attributeNode)[
-                                  item
-                                ]?.type.toLowerCase() == "button"?selectedSizeIndex:Object.values(productDetails?.attributeNode)[
-                                  item
-                                ]?.type.toLowerCase() == "multi-color"?selectedMultiColorIndex:''}
+                                value={
+                                  Object.values(productDetails?.attributeNode)[
+                                    item
+                                  ]?.type.toLowerCase() == "color"
+                                    ? selectedColorIndex
+                                    : Object.values(
+                                        productDetails?.attributeNode
+                                      )[item]?.type.toLowerCase() == "button"
+                                    ? selectedSizeIndex
+                                    : Object.values(
+                                        productDetails?.attributeNode
+                                      )[item]?.type.toLowerCase() ==
+                                      "multi-color"
+                                    ? selectedMultiColorIndex
+                                    : ""
+                                }
                                 onChange={(event) => {
                                   if (
                                     productDetails?.attributeNode != null ||
@@ -1290,13 +1301,21 @@ const ProductForm = () => {
                               labelId="demo-multiple-chip-label"
                               id="demo-multiple-chip"
                               multiple
-                              value={Object.values(productDetails?.attributeNode)[
-                                item
-                              ]?.type.toLowerCase() == "color"?colorArray:Object.values(productDetails?.attributeNode)[
-                                item
-                              ]?.type.toLowerCase() == "button"?sizeArray:Object.values(productDetails?.attributeNode)[
-                                item
-                              ]?.type.toLowerCase() == "multi-color"?multiColorArray:''}
+                              value={
+                                Object.values(productDetails?.attributeNode)[
+                                  item
+                                ]?.type.toLowerCase() == "color"
+                                  ? colorArray
+                                  : Object.values(
+                                      productDetails?.attributeNode
+                                    )[item]?.type.toLowerCase() == "button"
+                                  ? sizeArray
+                                  : Object.values(
+                                      productDetails?.attributeNode
+                                    )[item]?.type.toLowerCase() == "multi-color"
+                                  ? multiColorArray
+                                  : ""
+                              }
                               onChange={(event) => {
                                 handleChangeVariableProduct(
                                   event,
