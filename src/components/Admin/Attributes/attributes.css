@@ -125,3 +125,22 @@
   gap: 5px;
   margin-left: 5px;
 }
+.multi-text{
+  margin-right: 5px;
+  margin-bottom: 0px;
+}
+.color-multi-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  margin-left: 5px;
+}
+.chip{
+  margin-top: 5px !important;
+  margin-right: 5px !important;
+  margin-bottom: 5px !important;
+}
+.colorDiv{
+  display: flex;
+}

@@ -74,6 +74,8 @@ import {
   const colors = [];
   
   const sizes = [];
+
+  const multiColors=[];
   
   function getColorStyles(name, personName, theme) {
 	return {
@@ -84,6 +86,14 @@ import {
   }
   
   function getSizeStyles(name, personName, theme) {
+	return {
+	  fontWeight: personName?.includes(name)
+		? theme.typography.fontWeightMedium
+		: theme.typography.fontWeightRegular,
+	};
+  }
+
+  function getMultiColorStyles(name, personName, theme) {
 	return {
 	  fontWeight: personName?.includes(name)
 		? theme.typography.fontWeightMedium
@@ -115,6 +125,7 @@ import {
 	const theme = useTheme();
 	const [personName, setPersonName] = React.useState([]);
 	const [multipleAttribute, setMultipleAttribute] = useState([]);
+	const [multiColorArray, setMultiColorArray] = React.useState([]);
 	const [colorArray, setColorArray] = React.useState([]);
 	const [sizeArray, setSizeArray] = React.useState([]);
 	const [color, setColor] = React.useState("null");
@@ -135,7 +146,7 @@ import {
 	const [length, setLength] = useState("");
 	const [width, setWidth] = useState("");
 	const [height, setHeight] = useState("");
-  
+	const [multiColor,setMultiColor]=useState("null");
 	const handleChangeSimpleProduct = (event, attributeObject, attributeName) => {
 	  const {
 		target: { value },
@@ -145,13 +156,19 @@ import {
 				value !== undefined
 				  ? Object.values(attributeObject.terms)[value]
 				  : null
-			  );
+			);
 		}else if(attributeName.toLowerCase()==='color'){
 			setColor(
 				value !== undefined
 				  ? Object.values(attributeObject.terms)[value]
 				  : null
-			  );
+				);
+		}else if(attributeName.toLowerCase()==='multi-color'){
+			setMultiColor(
+				value !== undefined
+				  ? Object.values(attributeObject.terms)[value]
+				  : null
+				);
 		}
 	};
   
@@ -160,19 +177,23 @@ import {
 		target: { value },
 	  } = event;
   
-	  if (attributeName === "Color") {
+	  if (attributeName.toLowerCase() === "color") {
 		setColorArray(
 		  // On autofill we get a stringified value.
 		  typeof value === "string" ? value.split(",") : value
 		);
-	  } else if (attributeName === "Size") {
+	  } else if (attributeName.toLowerCase() === "button") {
 		console.log(value);
 		setSizeArray(
 		  // On autofill we get a stringified value.
 		  typeof value === "string" ? value.split(",") : value
-		);
-		console.log(sizeArray);
-	  }
+		)
+	  }else if (attributeName.toLowerCase() === "multi-color") {
+			setMultiColorArray(
+			  // On autofill we get a stringified value.
+			  typeof value === "string" ? value.split(",") : value
+			);
+	}
 	};
   
 	const handleProductType = (event) => {
@@ -227,6 +248,7 @@ import {
 	  setAttribute(location.state.productData?.productAttribute);
 	  setUrl(location.state.productData?.image??null);
 	  setUrls(location.state?.productData?.galleryImage??[]);
+	  console.log(location.state?.productData);
 	};
 	useEffect(() => {
 	  if (location?.state?.location == "Edit") {
@@ -255,10 +277,10 @@ import {
 	  fetchCategories();
 	  if (productDetails?.attributeNode != null) {
 		Object.values(productDetails?.attributeNode)?.map((item) => {
-		  console.log("Test Size::::::::::::::::::::", item?.slug);
 		  if (item?.terms != undefined) {
-			if (item?.slug == "color") {
+			if (item?.type.toLowerCase() == "color") {
 			  Object.values(item?.terms)?.map((item1) => {
+
 				colors?.push({
 				  name: item1?.name,
 				  colorCode: item1?.colorCode,
@@ -266,7 +288,7 @@ import {
 				  color: item1?.color,
 				});
 			  });
-			} else if (item?.slug == "size") {
+			} else if (item?.type.toLowerCase() == "button") {
 			  Object.values(item?.terms)?.map((item2) => {
 				sizes?.push({
 				  name: item2?.name,
@@ -274,7 +296,16 @@ import {
 				  size: item2?.size,
 				});
 			  });
-			}
+			} else if (item?.type.toLowerCase() == "multi-color") {
+				Object.values(item?.terms)?.map((item3) => {
+				  multiColors?.push({
+					name: item3?.name,
+					slug: item3?.slug,
+					multiColor: item3?.multiColor,
+				  });
+				  console.log("Test Size::::::::::::::::::::", multiColors);
+				});
+			  }
 		  }
 		});
 	  }
@@ -624,31 +655,44 @@ import {
 	const selectedColorCodes = [];
 	const selectedColor = [];
 	const selectedSizes = [];
+	const selectedMultiColor=[];
 	const updateProduct = async () => {
+		console.log('Product Type::::::::::::::::::::::',productType);
 	  if (productType?.value == 3) {
+		// colors?.map((color) => {
+		//   colorArray?.map((colorArray, index) => {
+		// 	if (colorArray == color?.name) {
+		// 	  selectedColorCodes[index] = color?.colorCode;
+		// 	}
+		//   });
+		// });
 		colors?.map((color) => {
 		  colorArray?.map((colorArray, index) => {
+			console.log('My Color Array',colorArray);
 			if (colorArray == color?.name) {
-			  selectedColorCodes[index] = color?.colorCode;
-			}
-		  });
-		});
-		colors?.map((color) => {
-		  colorArray?.map((colorArray, index) => {
-			if (colorArray == color?.name) {
-			  selectedColor[index] = color?.name;
+			  selectedColor[index] = color;
 			}
 		  });
 		});
 		sizes?.map((size) => {
 		  sizeArray?.map((sizeArray, index) => {
+			console.log('My Size Array',sizeArray);
 			if (sizeArray == size?.name) {
-			  selectedSizes[index] = size?.name;
+			  selectedSizes[index] = size;
 			}
 		  });
 		});
+		multiColors?.map((multiColor)=>{
+		   multiColorArray?.map((multiColorArray,index)=>{
+			console.log('My Multi Color Array',multiColor);
+			if(multiColorArray==multiColor?.name){
+				selectedMultiColor[index]=multiColor;
+			}
+		   })
+		})
+
 		console.log(selectedColor);
-		console.log(selectedColorCodes);
+		console.log(selectedMultiColor);
 		console.log(selectedSizes);
 		try {
 		  const productRef = dbRef(
@@ -683,6 +727,7 @@ import {
 			colorCode: selectedColorCodes,
 			color: selectedColor,
 			size: selectedSizes,
+			multiColor:selectedMultiColor,
 			category: categoryCheckedState,
 		  });
 		  alert(
@@ -702,15 +747,13 @@ import {
 			"products/" + sku?.toLowerCase()?.replace(/\s+/g, "_")
 		  );
 		  // Check if the user data already exists
-		  const snapshot = await get(productRef);
-  
-		  console.log(attribute);
 		  await set(productRef, {
 			sku: sku?.toLowerCase()?.replace(/\s+/g, "_"),
 			productName: productName,
 			description: description?.replace(/<[^>]*>?/gm, ""),
 			shortDescription: shortDescription?.replace(/<[^>]*>?/gm, ""),
 			videoUrl: videoUrl,
+			shippingEnabled: shippingEnabled,
 			image: url,
 			galleryImage: urls,
 			stockStatus: stockStatus.label,
@@ -726,33 +769,9 @@ import {
 			width: width,
 			qty: qty,
 			productAttribute: attribute,
-			colorCode: attribute?.map((item) => {
-			  if (item === 1) {
-				return "";
-			  } else if (attribute?.includes(item)) {
-				// Check if the item exists in the attribute
-				return color?.colorCode != undefined ? color?.colorCode : "";
-			  }
-			  return null; // or any default value if the item isn't found
-			}),
-			color: attribute?.map((item) => {
-			  if (item === 1) {
-				return "";
-			  } else if (attribute?.includes(item)) {
-				// Check if the item exists in the attribute
-				return color?.name != undefined ? color?.name : "";
-			  }
-			  return null; // or any default value if the item isn't found
-			}),
-			size: attribute?.map((item) => {
-			  if (item === 0) {
-				return "";
-			  } else if (attribute?.includes(item)) {
-				// Check if the item exists in the attribute
-				return size?.name != undefined ? size?.name : "";
-			  }
-			  return null; // or any default value if the item isn't found
-			}),
+			color: color,
+			size:size,
+			multiColor: multiColor,
 			category: categoryCheckedState,
 		  });
   
@@ -791,6 +810,13 @@ import {
 			}
 		  });
 		});
+		multiColors?.map((multiColor)=>{
+			multiColorArray?.map((multiArray,index)=>{
+			 if(multiArray==multiColor?.name){
+				 selectedMultiColor[index]=multiColor?.name;
+			 }
+			})
+		})
 		console.log(selectedColor);
 		console.log(selectedColorCodes);
 		console.log(selectedSizes);
@@ -834,6 +860,7 @@ import {
 			  colorCode: selectedColorCodes,
 			  color: selectedColor,
 			  size: selectedSizes,
+			  multiColor:selectedMultiColor,
 			  category: categoryCheckedState,
 			});
 			alert(
@@ -871,6 +898,7 @@ import {
 			  shortDescription: shortDescription?.replace(/<[^>]*>?/gm, ""),
 			  videoUrl: videoUrl,
 			  image: url,
+			  shippingEnabled: shippingEnabled,
 			  galleryImage: urls,
 			  stockStatus: stockStatus.label,
 			  productForm: checkedState,
@@ -885,33 +913,9 @@ import {
 			  width: width,
 			  qty: qty,
 			  productAttribute: attribute,
-			  colorCode: attribute?.map((item) => {
-				if (item === 1) {
-				  return "";
-				} else if (attribute?.includes(item)) {
-				  // Check if the item exists in the attribute
-				  return color?.colorCode != undefined ? color?.colorCode : "";
-				}
-				return null; // or any default value if the item isn't found
-			  }),
-			  color: attribute?.map((item) => {
-				if (item === 1) {
-				  return "";
-				} else if (attribute?.includes(item)) {
-				  // Check if the item exists in the attribute
-				  return color?.name != undefined ? color?.name : "";
-				}
-				return null; // or any default value if the item isn't found
-			  }),
-			  size: attribute?.map((item) => {
-				if (item === 0) {
-				  return "";
-				} else if (attribute?.includes(item)) {
-				  // Check if the item exists in the attribute
-				  return size?.name != undefined ? size?.name : "";
-				}
-				return null; // or any default value if the item isn't found
-			  }),
+			  color: color,
+			  size:size,
+			  multiColor: multiColor,
 			  category: categoryCheckedState,
 			});
   
@@ -1380,6 +1384,9 @@ import {
 							  )}
 							</td>
 						  ) : (
+							console.log(Object.values(productDetails?.attributeNode)[
+								item
+							  ]),
 							<td>
 							  <Select
 								labelId="demo-multiple-chip-label"
@@ -1388,9 +1395,14 @@ import {
 								value={
 								  Object.values(productDetails?.attributeNode)[
 									item
-								  ]?.name == "Color"
-									? colorArray
-									: sizeArray
+								  ]?.type.toLowerCase() == "color"? colorArray
+									:Object.values(productDetails?.attributeNode)[
+										item
+									  ]?.type.toLowerCase() == "button" ? sizeArray
+									:Object.values(productDetails?.attributeNode)[
+										item
+									]?.type.toLowerCase() == "multi-color" ?
+									multiColorArray:[]
 								}
 								onChange={(event) => {
 								  handleChangeVariableProduct(
@@ -1398,7 +1410,7 @@ import {
 									index,
 									Object.values(productDetails?.attributeNode)[
 									  item
-									]?.name
+									]?.type
 								  );
 								}}
 								input={
@@ -1415,7 +1427,7 @@ import {
 									  gap: 0.5,
 									}}
 								  >
-									{selected.map((value) => (
+									{selected?.map((value) => (
 									  <Chip key={value} label={value} />
 									))}
 								  </Box>
@@ -1425,24 +1437,34 @@ import {
 								{Object.values(
 								  Object.values(productDetails?.attributeNode)[
 									item
-								  ].terms
-								).map((item, index) => {
+								  ]?.terms
+								)?.map((item, index) => {
 								  return (
 									<MenuItem
 									  style={
 										Object.values(
 										  productDetails?.attributeNode
-										)[index]?.name == "Color"
+										)[index]?.type.toLowerCase() == "color"
 										  ? getColorStyles(
 											  item?.name,
 											  colorArray,
 											  theme
 											)
-										  : getSizeStyles(
+										  :Object.values(
+											productDetails?.attributeNode
+										  )[index]?.type.toLowerCase() == "button"
+											? getSizeStyles(
 											  item?.name,
 											  sizeArray,
 											  theme
-											)
+											):Object.values(
+												productDetails?.attributeNode
+											  )[index]?.type.toLowerCase() == "multi-color"?
+											getMultiColorStyles(
+												item?.name,
+												multiColorArray,
+												theme
+											):null
 									  }
 									  key={index}
 									  value={item?.name}
