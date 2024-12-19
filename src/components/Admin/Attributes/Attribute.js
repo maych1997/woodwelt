@@ -144,7 +144,7 @@ const Attribute = () => {
 			headerName: "Terms",
 			width: 300,
 			renderCell: (params) =>
-				params?.row?.terms != undefined && params?.row?.slug == "color"
+				params?.row?.terms != undefined && params?.row?.type.toLowerCase() == "color"
 					? Object.values(params?.row?.terms).map((item, index) => (
 							<div className="color-text-container" key={index}>
 								<p className="color-text">{item?.name}</p>
@@ -159,13 +159,36 @@ const Attribute = () => {
 								/>
 							</div>
 					  ))
-					: params?.row?.terms != undefined && params?.row?.slug == "size"
+					: params?.row?.terms != undefined && params?.row?.type.toLowerCase() == "button"
 					? Object.values(params.row.terms).map((item, index) => (
 							<div className="color-text-container" key={index}>
 								<p className="color-text">{item?.name}</p>
 							</div>
 					  ))
-					: "No Terms Added",
+					:
+					params?.row?.terms != undefined && params?.row?.type.toLowerCase() == "multi-color"
+					? Object.values(params?.row?.terms).map((item, index) => (
+							console.log('::::::::',item),
+							<div className="color-multi-container" key={index}>
+								<p className="multi-text">{item?.name} :</p>
+								
+								{item.multiColor.map((colorCode)=>{
+									console.log(colorCode);
+									return(
+									<div
+									style={{
+										backgroundColor: colorCode,
+										width: "30px",
+										height: "20px",
+										border: "1px solid",
+									}}
+									
+								/>
+									)
+								})}
+							</div>
+					  )):
+					"No Terms Added",
 		},
 		{
 			field: "actions",

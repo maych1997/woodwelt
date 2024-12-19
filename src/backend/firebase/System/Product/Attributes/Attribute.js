@@ -9,6 +9,7 @@ const attributes=async ()=>{
             // 1: 'Image',
             1: 'Button',
             // 3: 'Radio'
+            2: 'Multi-Color'
           });
     }
     catch(error){
