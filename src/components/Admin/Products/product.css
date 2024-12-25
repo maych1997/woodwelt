@@ -39,6 +39,9 @@
   flex-direction: column;
   gap: 20px;
 }
+.text-input-custom{
+  width: 64px;
+}
 .checkBoxContainer {
   display: flex;
   color: #000;
@@ -115,7 +118,7 @@ td {
   vertical-align: middle;
 }
 td .select-attribute {
-  width: 20%;
+  width: 50%;
 }
 .ck-content{
   color: #000;
@@ -126,4 +129,9 @@ td .select-attribute {
   h6{
     margin: 0;
   }
+}
+.dimension-container{
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }

@@ -86,7 +86,11 @@ const Products = () => {
     { field: "description", headerName: "Product Description", width: 200 },
     { field: "shortDescription", headerName: "Short Description", width: 200 },
     { field: "stockStatus", headerName: "Stock Status", width: 130 },
-    { field: "productType", headerName: "Type", width: 130 },
+    { field: "productType", headerName: "Type", width: 130,renderCell:(params)=>{
+      return(
+        <>{params.row.productType.label}</>
+      )
+    } },
     {
       field: "category",
       headerName: "Category",
@@ -261,7 +265,7 @@ const Products = () => {
       headerName: "Tax Class",
       width: 130,
       renderCell: (params) => {
-        return params.value.label[params.value.value];
+        return params.value.label;
       },
     },
     {

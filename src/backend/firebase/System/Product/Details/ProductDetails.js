@@ -46,8 +46,8 @@ const productData=async ()=>{
         const catRef = dbRef(database, "System/ProductType");
         await set(catRef, {
             0: 'Simple Product',
-            1: 'Grouped Product',
-            2: 'External/Affiliate Product',
+            // 1: 'Grouped Product',
+            // 2: 'External/Affiliate Product',
             3: 'Variable Product',
           });
     }
