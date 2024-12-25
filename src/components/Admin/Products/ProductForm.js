@@ -139,10 +139,19 @@ const ProductForm = () => {
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
+  const [simpleProductWeight, setSimpleProductWeight] = useState("");
+  const [simpleProductLength, setSimpleProductLength] = useState("");
+  const [simpleProductWidth, setSimpleProductWidth] = useState("");
+  const [simpleProductHeight, setSimpleProductHeight] = useState("");
+  const [variableProductWeight, setVariableProductWeight] = useState("");
+  const [variableProductLength, setVariableProductLength] = useState("");
+  const [variableProductWidth, setVariableProductWidth] = useState("");
+  const [variableProductHeight, setVariableProductHeight] = useState("");
+  const [sizeDimensions, setSizeDimensions] = useState({});
   const [multiColor, setMultiColor] = useState("null");
-  const [selectedColorIndex,setSelectedColorIndex]=useState();
-  const [selectedSizeIndex,setSelectedSizeIndex]=useState();
-  const [selectedMultiColorIndex,setSelectedMultiColorIndex]=useState();
+  const [selectedColorIndex, setSelectedColorIndex] = useState();
+  const [selectedSizeIndex, setSelectedSizeIndex] = useState();
+  const [selectedMultiColorIndex, setSelectedMultiColorIndex] = useState();
   const handleChangeSimpleProduct = (event, attributeObject, attributeName) => {
     const {
       target: { value },
@@ -177,16 +186,15 @@ const ProductForm = () => {
       );
     } else if (attributeName.toLowerCase() === "button") {
       setSizeArray(
-        // On autofill we get a stringified value.
+		// On autofill we get a stringified value.
         typeof value === "string" ? value.split(",") : value
-      );
+      ); 
     } else if (attributeName.toLowerCase() === "multi-color") {
       setMultiColorArray(
         // On autofill we get a stringified value.
         typeof value === "string" ? value.split(",") : value
       );
     }
-    console.log(colorArray);
   };
 
   const handleProductType = (event) => {
@@ -234,20 +242,44 @@ const ProductForm = () => {
     setAttribute(location.state.productData?.productAttribute);
     setUrl(location.state.productData?.image ?? null);
     setUrls(location.state?.productData?.galleryImage ?? []);
-    setSelectedMultiColorIndex(location.state.productData?.selectedMultiColorIndex);
+    setSelectedMultiColorIndex(
+      location.state.productData?.selectedMultiColorIndex
+    );
     setSelectedColorIndex(location.state.productData?.selectedColorIndex);
     setSelectedSizeIndex(location.state.productData?.selectedSizeIndex);
     setProductType(location.state.productData?.productType);
-    console.log("Hello", location.state.productData);
-    location.state.productData?.color?.map((item,index)=>{
-      colorArray[index]=item.name;
-    })
-    location.state.productData?.size?.map((item,index)=>{
-      sizeArray[index]=item.name;
-    })
-    location.state.productData?.multiColor?.map((item,index)=>{
-      multiColorArray[index]=item.name;
-    })
+    setSimpleProductHeight(
+      location.state.productData?.customizedHeight?.height
+    );
+    setSimpleProductWeight(
+      location.state.productData?.customizedWeight?.weight
+    );
+    setSimpleProductWidth(location.state.productData?.customizedWidth?.width);
+    setSimpleProductLength(
+      location.state.productData?.customizedLength?.length
+    );
+	setSizeDimensions(location.state.productData?.dimensions);
+    if (Array.isArray(location.state.productData?.color)) {
+      location.state.productData?.color?.map((item, index) => {
+        colorArray[index] = item?.name;
+      });
+    } else {
+      setColor(location.state.productData?.color);
+    }
+    if (Array.isArray(location.state.productData?.size)) {
+      location.state.productData?.size?.map((item, index) => {
+        sizeArray[index] = item?.name;
+      });
+    } else {
+      setSize(location.state.productData?.size);
+    }
+    if (Array.isArray(location.state.productData?.multiColor)) {
+      location.state.productData?.multiColor?.map((item, index) => {
+        multiColorArray[index] = item?.name;
+      });
+    } else {
+      setMultiColor(location.state.productData?.multiColor);
+    }
   };
   useEffect(() => {
     if (location?.state?.location == "Edit") {
@@ -627,6 +659,7 @@ const ProductForm = () => {
           size: selectedSizes,
           multiColor: selectedMultiColor,
           category: categoryCheckedState,
+		  dimensions:sizeDimensions,
         });
         alert(
           "Product " +
@@ -665,15 +698,19 @@ const ProductForm = () => {
           length: length,
           height: height,
           width: width,
+          customizedWeight: { size: size, weight: simpleProductWeight },
+          customizedLength: { size: size, length: simpleProductLength },
+          customizedWidth: { size: size, width: simpleProductWidth },
+          customizedHeight: { size: size, height: simpleProductHeight },
           qty: qty,
           productAttribute: attribute,
           color: color,
           size: size,
           multiColor: multiColor,
           category: categoryCheckedState,
-          selectedColorIndex:selectedColorIndex,
-          selectedSizeIndex:selectedSizeIndex,
-          selectedMultiColorIndex:selectedMultiColorIndex,
+          selectedColorIndex: selectedColorIndex,
+          selectedSizeIndex: selectedSizeIndex,
+          selectedMultiColorIndex: selectedMultiColorIndex,
         });
 
         alert(
@@ -753,6 +790,7 @@ const ProductForm = () => {
             size: selectedSizes,
             multiColor: selectedMultiColor,
             category: categoryCheckedState,
+			dimensions:sizeDimensions,
           });
           alert(
             "Product " +
@@ -801,15 +839,19 @@ const ProductForm = () => {
             length: length,
             height: height,
             width: width,
+            customizedWeight: { size: size, weight: simpleProductWeight },
+            customizedLength: { size: size, length: simpleProductLength },
+            customizedWidth: { size: size, width: simpleProductWidth },
+            customizedHeight: { size: size, height: simpleProductWeight },
             qty: qty,
             productAttribute: attribute,
             color: color,
             size: size,
             multiColor: multiColor,
             category: categoryCheckedState,
-            selectedColorIndex:selectedColorIndex,
-            selectedSizeIndex:selectedSizeIndex,
-            selectedMultiColorIndex:selectedMultiColorIndex,
+            selectedColorIndex: selectedColorIndex,
+            selectedSizeIndex: selectedSizeIndex,
+            selectedMultiColorIndex: selectedMultiColorIndex,
           });
 
           alert(
@@ -827,6 +869,16 @@ const ProductForm = () => {
   };
   useFetchProductAttributes();
   useFetchProductDetails();
+
+  const handleDimensionChange = (size, dimension, value) => {
+	setSizeDimensions((prevDimensions) => ({
+	  ...prevDimensions,
+	  [size]: {
+		...prevDimensions[size],
+		[dimension]: value,
+	  },
+	}));
+  };
   return (
     <div className="productContainer">
       <div className="main-title">
@@ -1200,6 +1252,18 @@ const ProductForm = () => {
                   <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Selection Options</th>
+                    {productType?.value != 3 ? (
+                      <>
+                        <th scope="col">Weight</th>
+                        <th scope="col">Length</th>
+                        <th scope="col">Width</th>
+                        <th scope="col">Height</th>
+                      </>
+                    ) : (
+                      <>
+                        <th scope="col">Dimensions</th>
+                      </>
+                    )}
                     <th scope="col">Action</th>
                   </tr>
                 ) : (
@@ -1207,11 +1271,6 @@ const ProductForm = () => {
                 )}
               </thead>
               {attribute?.map((item, index) => {
-                console.log(
-                  Object.values(
-                    Object.values(productDetails?.attributeNode)[item].terms
-                  )
-                );
                 if (
                   productDetails?.attributeNode != null ||
                   productDetails?.attributeNode != undefined
@@ -1236,13 +1295,22 @@ const ProductForm = () => {
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 size="small"
-                                value={Object.values(productDetails?.attributeNode)[
-                                  item
-                                ]?.type.toLowerCase() == "color"?selectedColorIndex:Object.values(productDetails?.attributeNode)[
-                                  item
-                                ]?.type.toLowerCase() == "button"?selectedSizeIndex:Object.values(productDetails?.attributeNode)[
-                                  item
-                                ]?.type.toLowerCase() == "multi-color"?selectedMultiColorIndex:''}
+                                value={
+                                  Object.values(productDetails?.attributeNode)[
+                                    item
+                                  ]?.type.toLowerCase() == "color"
+                                    ? selectedColorIndex
+                                    : Object.values(
+                                        productDetails?.attributeNode
+                                      )[item]?.type.toLowerCase() == "button"
+                                    ? selectedSizeIndex
+                                    : Object.values(
+                                        productDetails?.attributeNode
+                                      )[item]?.type.toLowerCase() ==
+                                      "multi-color"
+                                    ? selectedMultiColorIndex
+                                    : ""
+                                }
                                 onChange={(event) => {
                                   if (
                                     productDetails?.attributeNode != null ||
@@ -1290,13 +1358,21 @@ const ProductForm = () => {
                               labelId="demo-multiple-chip-label"
                               id="demo-multiple-chip"
                               multiple
-                              value={Object.values(productDetails?.attributeNode)[
-                                item
-                              ]?.type.toLowerCase() == "color"?colorArray:Object.values(productDetails?.attributeNode)[
-                                item
-                              ]?.type.toLowerCase() == "button"?sizeArray:Object.values(productDetails?.attributeNode)[
-                                item
-                              ]?.type.toLowerCase() == "multi-color"?multiColorArray:''}
+                              value={
+                                Object.values(productDetails?.attributeNode)[
+                                  item
+                                ]?.type.toLowerCase() == "color"
+                                  ? colorArray
+                                  : Object.values(
+                                      productDetails?.attributeNode
+                                    )[item]?.type.toLowerCase() == "button"
+                                  ? sizeArray
+                                  : Object.values(
+                                      productDetails?.attributeNode
+                                    )[item]?.type.toLowerCase() == "multi-color"
+                                  ? multiColorArray
+                                  : ""
+                              }
                               onChange={(event) => {
                                 handleChangeVariableProduct(
                                   event,
@@ -1321,7 +1397,9 @@ const ProductForm = () => {
                                   }}
                                 >
                                   {selected?.map((value) => (
-                                    <Chip key={value} label={value} />
+                                    <div>
+                                      <Chip key={value} label={value} />
+                                    </div>
                                   ))}
                                 </Box>
                               )}
@@ -1373,7 +1451,136 @@ const ProductForm = () => {
                             </Select>
                           </td>
                         )}
-
+                        <td>
+                          <div className="dimensions-container">
+                            {Object.values(productDetails?.attributeNode)[
+                              item
+                            ]?.type.toLowerCase() == "button" ? (
+                              sizeArray.map((item) => {
+								const dimensions = sizeDimensions[item] || {}; // Get dimensions for the current size
+                                return (
+                                  <>
+                                    <div>{item}</div>
+                                    <td>
+                                      <TextField
+                                        className="text-input-custom"
+                                        id="variableProductWeight"
+                                        size="small"
+                                        variant="outlined"
+                                        type="text"
+										value={dimensions?.weight || ""}
+										onChange={(event) => handleDimensionChange(item, "weight", event.target.value)}
+                                      />
+                                    </td>
+                                    <td>
+                                      <TextField
+                                        className="text-input-custom"
+                                        id="variableProductLength"
+                                        size="small"
+                                        variant="outlined"
+                                        type="text"
+										value={dimensions?.length || ""}
+										onChange={(event) => handleDimensionChange(item, "length", event.target.value)}
+                                      />
+                                    </td>
+                                    <td>
+                                      <TextField
+                                        className="text-input-custom"
+                                        id="variableProductWidth"
+                                        size="small"
+                                        variant="outlined"
+                                        type="text"
+										value={dimensions?.width || ""}
+										onChange={(event) => handleDimensionChange(item, "width", event.target.value)}
+                                      />
+                                    </td>
+                                    <td>
+                                      <TextField
+                                        className="text-input-custom"
+                                        id="variableProductHeight"
+                                        size="small"
+                                        variant="outlined"
+                                        type="text"
+										value={dimensions?.height || ""}
+										onChange={(event) => handleDimensionChange(item, "height", event.target.value)}
+                                      />
+                                    </td>
+                                  </>
+                                );
+                              })
+                            ) : (
+                              <td></td>
+                            )}
+                          </div>
+                        </td>
+                        {Object.values(productDetails?.attributeNode)[
+                          item
+                        ]?.type.toLowerCase() == "button" &&
+                        productType?.value != 3 ? (
+                          <>
+                            <td>
+                              <TextField
+                                className="text-input-custom"
+                                id="simpleProductWeight"
+                                size="small"
+                                variant="outlined"
+                                type="text"
+                                value={simpleProductWeight}
+                                onChange={(event) => {
+                                  setSimpleProductWeight(event.target.value);
+                                }}
+                              />
+                            </td>
+                            <td>
+                              <TextField
+                                className="text-input-custom"
+                                id="simpleProductLength"
+                                size="small"
+                                variant="outlined"
+                                type="text"
+                                value={simpleProductLength}
+                                onChange={(event) => {
+                                  setSimpleProductLength(event.target.value);
+                                }}
+                              />
+                            </td>
+                            <td>
+                              <TextField
+                                className="text-input-custom"
+                                id="simpleProductWidth"
+                                size="small"
+                                variant="outlined"
+                                type="text"
+                                value={simpleProductWidth}
+                                onChange={(event) => {
+                                  setSimpleProductWidth(event.target.value);
+                                }}
+                              />
+                            </td>
+                            <td>
+                              <TextField
+                                className="text-input-custom"
+                                id="simpleProductHeight"
+                                size="small"
+                                variant="outlined"
+                                type="text"
+                                value={simpleProductHeight}
+                                onChange={(event) => {
+                                  setSimpleProductHeight(event.target.value);
+                                }}
+                              />
+                            </td>
+                          </>
+                        ) : productType?.value != 3 ? (
+                          <>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                          </>
+                        ) : (
+                          <></>
+                        )}
                         <td className="remove">
                           <button
                             onClick={() => {
