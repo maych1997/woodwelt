@@ -130,3 +130,8 @@ td .select-attribute {
     margin: 0;
   }
 }
+.dimension-container{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
