@@ -28,10 +28,13 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null); // To store the selected product for deletion
+  const [selectedRowId, setSelectedRowId] = useState(null);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const handleClick = (event, rowId) => {
+		setAnchorEl(event.currentTarget);
+		setSelectedRowId(rowId);
+	};
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -83,7 +86,11 @@ const Products = () => {
     { field: "description", headerName: "Product Description", width: 200 },
     { field: "shortDescription", headerName: "Short Description", width: 200 },
     { field: "stockStatus", headerName: "Stock Status", width: 130 },
-    { field: "productType", headerName: "Type", width: 130 },
+    { field: "productType", headerName: "Type", width: 130,renderCell:(params)=>{
+      return(
+        <>{params.row.productType.label}</>
+      )
+    } },
     {
       field: "category",
       headerName: "Category",
@@ -98,41 +105,120 @@ const Products = () => {
         }),
     },
     { field: "qty", headerName: "Quantity", width: 130 },
-    { field: "color", headerName: "Color", width: 130 },
     {
-      field: "colorCode",
+      field: "color",
       headerName: "Color Code",
       width: 200,
       renderCell: (params) =>
-        !String(params?.row?.colorCode).includes(",") ? (
+        // !String(params?.row?.color?.colorCode)?.includes(",") ? (
+          // <div
+          //   style={{
+          //     backgroundColor: params?.row?.color?.colorCode,
+          //     height: 25,
+          //     width: 40,
+          //     border:
+          //       String(params?.row?.color?.colorCode).length != 0
+          //         ? "1px solid"
+          //         : "0px",
+          //   }}
+          // ></div>
+        // ) : (
+        //   String(params?.row?.color?.colorCode)
+        //     .split(",")
+        //     .map((item) => (
+        //       <div
+        //         style={{
+        //           backgroundColor: item,
+        //           height: 25,
+        //           width: 120,
+        //           marginRight: 5,
+        //           border: String(item).length != 0 ? "1px solid" : "0px",
+        //         }}
+        //       ></div>
+        //     ))
+        // ),
+        Array.isArray(params.row.color)? params.row.color.map((item)=>{
+          return(
+          <div
+          style={{
+            backgroundColor: item?.colorCode,
+            height: 25,
+            width: 40,
+            border:
+              String(item?.colorCode).length != 0
+                ? "1px solid"
+                : "0px",
+          }}
+        ></div>
+          )
+        }):         <div
+        style={{
+          backgroundColor: params?.row?.color?.colorCode,
+          height: 25,
+          width: 40,
+          border:
+            String(params?.row?.color?.colorCode).length != 0
+              ? "1px solid"
+              : "0px",
+        }}
+      ></div>
+    },
+    {
+      field: "colorName",
+      headerName: "Color Name",
+      width: 200,
+      renderCell: (params) =>
+      (
+        !Array.isArray(params?.row?.color)?params?.row?.color?.name:params?.row?.color.map((item,index)=>{
+          return(
+            params?.row?.color.length-1==index? item.name:item.name + ','
+          )
+        })
+      )
+    },
+    {
+      field: "multiColor",
+      headerName: "Multi Color",
+      width: 200,
+      renderCell: (params) =>(
+        !Array.isArray(params?.row?.multiColor)?params?.row?.multiColor?.multiColor?.map((item) => (
+        <div
+          style={{
+            backgroundColor: item,
+            height: 25,
+            width: 120,
+            border: String(item).length != 0 ? "1px solid" : "0px",
+          }}
+        ></div>
+      )):params?.row?.multiColor?.map((item)=>{
+        return(
+        item?.multiColor?.map((item) => (
           <div
             style={{
-              backgroundColor: params.row.colorCode,
+              backgroundColor: item,
               height: 25,
-              width: 40,
-              border:
-                String(params?.row?.colorCode).length != 0
-                  ? "1px solid"
-                  : "0px",
+              width: 120,
+              border: String(item).length != 0 ? "1px solid" : "0px",
             }}
           ></div>
-        ) : (
-          String(params.row.colorCode)
-            .split(",")
-            .map((item) => (
-              <div
-                style={{
-                  backgroundColor: item,
-                  height: 25,
-                  width: 120,
-                  marginRight: 5,
-                  border: String(item).length != 0 ? "1px solid" : "0px",
-                }}
-              ></div>
-            ))
-        ),
+          ))
+        )
+        })
+    )
     },
-    { field: "size", headerName: "Size", width: 130 },
+    {
+      field: "size",
+      headerName: "Size",
+      width: 200,
+      renderCell: (params) =>
+        (
+          !Array.isArray(params?.row?.size)?params?.row?.size?.name:params?.row?.size.map((item,index)=>{
+            return(
+              params?.row?.size.length-1==index? item.name:item.name + ','
+            )
+          })
+        )
+    },
     {
       field: "salePrice",
       headerName: "Sale Price",
@@ -179,7 +265,7 @@ const Products = () => {
       headerName: "Tax Class",
       width: 130,
       renderCell: (params) => {
-        return params.value.label[params.value.value];
+        return params.value.label;
       },
     },
     {
@@ -234,7 +320,7 @@ const Products = () => {
             aria-controls={open ? "long-menu" : undefined}
             aria-expanded={open ? "true" : undefined}
             aria-haspopup="true"
-            onClick={handleClick}
+						onClick={(event) => handleClick(event, params.row.id)}
           >
             <div className="threeDots">
               <div className="dots"></div>
@@ -248,7 +334,7 @@ const Products = () => {
               "aria-labelledby": "long-button",
             }}
             anchorEl={anchorEl}
-            open={open}
+						open={Boolean(anchorEl) && selectedRowId === params.row.id}
             onClose={handleClose}
             slotProps={{
               paper: {
